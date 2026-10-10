@@ -9,6 +9,7 @@
 | `workflows/抠图.json` | 透明底抠图（BiRefNet 专用分割模型，不改像素） | 约 3 秒/张 |
 | `workflows/文生图.json` | Qwen-Image-2.1 文生图（GGUF + KV 缓存加速） | 待实测 |
 | `workflows/分层文生图.json` | Qwen-Image-Layered 一次生成分层图（文字直接生成多层，LatentCut 切层输出） | 待实测 |
+| `workflows/彩墨画文生图.json` | 中国彩墨画文生图，9:16 竖幅，两段式（基础 864×1536 → 细化 1296×2304） | 待实测 |
 | `workflows/minimax_h3_i2v_auto_canvas.json` | MiniMax-H3 图生视频（768p GGUF + turbo 8 步 LoRA），画布自动适配任意比例输入图 | 约 30 分钟/5 秒视频（内存紧张时） |
 
 配套一个自建小节点包 `custom_nodes/comfyui-style-prompt/`（风格库下拉选择器 + 存回节点 + 背景填充节点），
@@ -104,7 +105,7 @@ python main.py --lowvram --preview-method auto
 ## 目录结构
 
 ```
-├── workflows/                      # 五个工作流（浏览器直接打开）
+├── workflows/                      # 六个工作流（浏览器直接打开）
 ├── styles/                         # 风格库：一个 txt = 一种风格，支持 # 注释
 ├── custom_nodes/comfyui-style-prompt/   # 自建节点：风格下拉选择器 + 存回节点
 ├── patches/                        # ComfyUI-GGUF 的 Qwen-Image 架构补丁

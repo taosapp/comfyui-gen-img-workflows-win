@@ -1,0 +1,710 @@
+{
+ "last_node_id": 90,
+ "last_link_id": 17,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "UnetLoaderGGUF",
+   "pos": [
+    40,
+    60
+   ],
+   "size": [
+    330,
+    58
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      1
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UnetLoaderGGUF"
+   },
+   "widgets_values": [
+    "qwen-image-2.1-Q5_K_M.gguf"
+   ],
+   "title": "① 主模型（Qwen-Image-2.1 GGUF）"
+  },
+  {
+   "id": 2,
+   "type": "CLIPLoader",
+   "pos": [
+    40,
+    170
+   ],
+   "size": [
+    330,
+    78
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      3
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen3vl_8b_int8_convrot.safetensors",
+    "qwen_image",
+    "default"
+   ],
+   "title": "② 文本编码器"
+  },
+  {
+   "id": 3,
+   "type": "VAELoader",
+   "pos": [
+    40,
+    300
+   ],
+   "size": [
+    330,
+    58
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      4,
+      5
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "qwen_image_2.1_vae_bf16.safetensors"
+   ],
+   "title": "③ VAE"
+  },
+  {
+   "id": 4,
+   "type": "QwenImage21Cache",
+   "pos": [
+    430,
+    60
+   ],
+   "size": [
+    360,
+    90
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      2,
+      12
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "QwenImage21Cache"
+   },
+   "widgets_values": [
+    "auto",
+    "default"
+   ],
+   "title": "④ KV 缓存加速（勿删）"
+  },
+  {
+   "id": 5,
+   "type": "TextEncodeQwenImage21",
+   "pos": [
+    430,
+    210
+   ],
+   "size": [
+    420,
+    300
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "links": [
+      6,
+      13
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "links": [
+      7,
+      14
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "latent",
+     "type": "LATENT",
+     "links": [],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImage21"
+   },
+   "widgets_values": [
+    "中国江南山水，云雾缭绕的远山如黛，湖面大片留白，一叶扁舟，岸边几株垂柳与点染的远树。\n淡雅的水墨晕染质感，毛笔在宣纸上的笔触，笔锋自然有力；细腻流畅的线条勾勒物象结构；\n淡彩渲染，以花青、赭石、藤黄、胭脂等颜料薄涂点染；宣纸纤维纹理清晰可见；\n墨色浓淡层次丰富，从浓墨到淡墨自然过渡；大面积留白营造意境。\n超高清画质，4K，细节清晰，9:16 竖幅构图。",
+    "照片，摄影，写实照片，3D 渲染，CG，油画，动漫，二次元，卡通，粉笔画，粗重线条，描边，平涂，无晕染，涂抹，模糊，低分辨率，像素噪点，压缩瑕疵，过曝，荧光色，刺眼高饱和，硬边缘，高对比度，水印，文字，签名，印章，边框，畸形，多余肢体，杂乱构图，重复元素，photograph, photorealistic, 3d render, cgi, anime, cartoon, blurry, lowres, watermark, signature, text, oversaturated, harsh contrast, outline, cel shading",
+    1024
+   ],
+   "title": "⑤ 提示词（正向 / 负向）——只改这两个框"
+  },
+  {
+   "id": 6,
+   "type": "EmptySD3LatentImage",
+   "pos": [
+    430,
+    580
+   ],
+   "size": [
+    330,
+    110
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      8
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "EmptySD3LatentImage"
+   },
+   "widgets_values": [
+    864,
+    1536,
+    1
+   ],
+   "title": "⑥ 画布 864×1536（正好 9:16）"
+  },
+  {
+   "id": 7,
+   "type": "KSampler",
+   "pos": [
+    900,
+    60
+   ],
+   "size": [
+    320,
+    270
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 2
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 6
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 7
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 8
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      9,
+      11
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    20261010,
+    "randomize",
+    20,
+    3.5,
+    "euler",
+    "beta",
+    1.0
+   ],
+   "title": "⑦ 第一段采样（20 步 / cfg 3.5，与本仓库其它工作流一致）"
+  },
+  {
+   "id": 8,
+   "type": "VAEDecode",
+   "pos": [
+    1290,
+    60
+   ],
+   "size": [
+    300,
+    60
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 9
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 4
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      10
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": [],
+   "title": "⑧ 解码"
+  },
+  {
+   "id": 9,
+   "type": "SaveImage",
+   "pos": [
+    1640,
+    60
+   ],
+   "size": [
+    340,
+    400
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 10
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "彩墨画/基础_864x1536"
+   ],
+   "title": "⑨ 出图：基础尺寸"
+  },
+  {
+   "id": 10,
+   "type": "LatentUpscale",
+   "pos": [
+    900,
+    400
+   ],
+   "size": [
+    320,
+    130
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 11
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      15
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LatentUpscale"
+   },
+   "widgets_values": [
+    "bicubic",
+    1296,
+    2304,
+    "disabled"
+   ],
+   "title": "⑩ 放大到 1296×2304（1.5×，仍是 9:16）"
+  },
+  {
+   "id": 11,
+   "type": "KSampler",
+   "pos": [
+    1290,
+    400
+   ],
+   "size": [
+    320,
+    270
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 12
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 13
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 14
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 15
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      16
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    20261011,
+    "randomize",
+    10,
+    3.5,
+    "euler",
+    "beta",
+    0.3
+   ],
+   "title": "⑪ 第二段细化（10 步 / denoise 0.3，只补细节不改构图）"
+  },
+  {
+   "id": 12,
+   "type": "VAEDecode",
+   "pos": [
+    1670,
+    400
+   ],
+   "size": [
+    300,
+    60
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 16
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 5
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      17
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": [],
+   "title": "⑫ 解码"
+  },
+  {
+   "id": 13,
+   "type": "SaveImage",
+   "pos": [
+    2010,
+    400
+   ],
+   "size": [
+    340,
+    400
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 17
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "彩墨画/4K_1296x2304"
+   ],
+   "title": "⑬ 出图：高分辨率版"
+  },
+  {
+   "id": 90,
+   "type": "MarkdownNote",
+   "pos": [
+    40,
+    760
+   ],
+   "size": [
+    420,
+    560
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "## 彩墨画文生图（Qwen-Image-2.1 GGUF）\n\n**文生图 · 9:16 竖幅 · 两段式（基础 → 细化）**\n\n### 用法\n1. 只改 `⑤ 提示词` 里的**正向**内容（第一句写你要画的题材）；负向一般不用动\n2. `Queue` → output 里两张图：`彩墨画/基础_*.png` 与 `彩墨画/4K_*.png`\n\n### 两段在做什么\n| 段 | 节点 | 作用 |\n|---|---|---|\n| 一段 | ⑥`EmptySD3LatentImage` 864×1536 → ⑦ KSampler 20 步 | 定构图与墨色，`EmptySD3LatentImage` 才能指定 9:16（编码器自带的空 latent 只会出正方形）|\n| 二段 | ⑩ LatentUpscale 1.5× → ⑪ KSampler 10 步 denoise 0.3 | 只补纸纹与笔触细节，构图不变 |\n\n步数与本仓库其它工作流一致（20 步 / cfg 3.5），适配 12GB 显存 + `--lowvram`；\n彩墨画这类题材步数少反而更干净，噪点少、墨色更整。\n\n### 调参\n| 症状 | 怎么调 |\n|---|---|\n| 构图乱 / 墨色脏 | 一段 steps 降到 16，cfg 降到 3.0 |\n| 线条不够细腻 | 一段 steps 提到 28，或二段 denoise 提到 0.4 |\n| 想再快一点 | ⑥ 改成 720×1280、⑩ 同步改成 1080×1920（像素少一半，约快 30%）|\n| 想要更大尺寸 | ⑥ 的 width/height 等比放大（如 1088×1920），⑩ 同步改成 1632×2880 |\n| 显存吃紧 | 选中 ⑪ 按 M 静音，只用基础尺寸出图 |\n| 第二段太慢 | 二段 steps 10 → 6，或直接静音 |\n\n### 换题材\n把 `⑤ 正向` 的第一句替换即可，例：\n`一枝斜出的梅花，雪意朦胧，背景留白` / `远山瀑布，飞瀑直下，山间云气` /\n`荷塘一角，荷叶田田，一支半开的荷花`\n\n### 提示词写法（彩墨画）\n- **写意**：淡雅晕染 + 毛笔宣纸质感 + 淡彩 + 留白；**工笔**则写「工笔重彩、勾勒填色」\n- 颜料词（花青/赭石/藤黄/胭脂/石青）比「蓝的、黄的」有效得多\n- 4K 已在提示词里；真正的分辨率靠 ⑥ 的宽高，别只写「4K」指望模型自己加分辨率\n- 竖幅构图建议在提示词里也点一句「9:16 竖幅」，双保险\n"
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   1,
+   0,
+   4,
+   0,
+   "MODEL"
+  ],
+  [
+   2,
+   4,
+   0,
+   7,
+   0,
+   "MODEL"
+  ],
+  [
+   3,
+   2,
+   0,
+   5,
+   0,
+   "CLIP"
+  ],
+  [
+   4,
+   3,
+   0,
+   8,
+   1,
+   "VAE"
+  ],
+  [
+   5,
+   3,
+   0,
+   12,
+   1,
+   "VAE"
+  ],
+  [
+   6,
+   5,
+   0,
+   7,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   7,
+   5,
+   1,
+   7,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   8,
+   6,
+   0,
+   7,
+   3,
+   "LATENT"
+  ],
+  [
+   9,
+   7,
+   0,
+   8,
+   0,
+   "LATENT"
+  ],
+  [
+   10,
+   8,
+   0,
+   9,
+   0,
+   "IMAGE"
+  ],
+  [
+   11,
+   7,
+   0,
+   10,
+   0,
+   "LATENT"
+  ],
+  [
+   12,
+   4,
+   0,
+   11,
+   0,
+   "MODEL"
+  ],
+  [
+   13,
+   5,
+   0,
+   11,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   14,
+   5,
+   1,
+   11,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   15,
+   10,
+   0,
+   11,
+   3,
+   "LATENT"
+  ],
+  [
+   16,
+   11,
+   0,
+   12,
+   0,
+   "LATENT"
+  ],
+  [
+   17,
+   12,
+   0,
+   13,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "config": {},
+ "extra": {},
+ "version": 0.4
+}
