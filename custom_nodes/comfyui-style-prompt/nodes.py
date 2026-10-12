@@ -24,6 +24,11 @@
     节点上的「describe / avoid」文本框 = **这一张照片的个体信息**（人物、人数、
     年龄、年代、服饰……），分别追加到库正向/负向之后。改通用规则改文件，
     改单张照片的信息改界面，两边都不用动另一处。
+
+自定义模式（2026-10-12 新增）：
+    下拉里的第一项「自定义（只用下面两个框）」不读风格库，两个文本框的内容
+    原样作为最终正向 / 负向提示词送出（前面不加任何库内容、不做任何拼接）。
+    适合「这一次就是要手写完整提示词」的场合——不用为了跑一次而去建一个风格文件。
 """
 
 import logging
@@ -41,6 +46,9 @@ def _comfy_root():
 
 STYLE_DIR = os.environ.get("COMFYUI_STYLE_DIR") or os.path.join(_comfy_root(), "styles")
 STYLE_EXTS = (".txt", ".md", ".prompt")
+# 下拉里的第一项：不读风格库，两个文本框原样当正/负向提示词用。
+# 名字会出现在下拉框里，改这里即可（不要与风格库文件名重名）。
+CUSTOM_STYLE = "自定义（只用下面两个框）"
 _ORDER_PREFIX = re.compile(r"^\s*\d+\s*[-_.、)）．\s]*\s*")
 _ILLEGAL = re.compile(r'[\\/:*?"<>|\r\n\t]+')
 
@@ -134,21 +142,24 @@ class StylePromptSelector:
 
     @classmethod
     def INPUT_TYPES(cls):
-        names = list(load_styles()) or ["(风格库为空)"]
+        names = [CUSTOM_STYLE] + (list(load_styles()) or ["(风格库为空)"])
         return {
             "required": {
-                "style": (names, {"tooltip": "风格库 = ComfyUI\\styles 里的 *.txt，文件名即风格名"}),
+                "style": (names, {"tooltip": "第一项「自定义」= 不用风格库，下面两个框就是完整的正向/负向提示词；"
+                                           "其余来自 ComfyUI\\styles 里的 *.txt，文件名即风格名"}),
                 "describe": ("STRING", {
                     "multiline": True,
                     "dynamicPrompts": False,
                     "default": "",
-                    "tooltip": "这一张照片的情况：人物、人数、年龄、年代、服饰…… 追加在风格库正向之后",
+                    "tooltip": "选「自定义」时：这里就是**完整的正向提示词**（前面不会再加任何内容）；"
+                               "选风格库风格时：这一张照片的情况（人物、人数、年龄、年代、服饰……）追加在风格正向后",
                 }),
                 "avoid": ("STRING", {
                     "multiline": True,
                     "dynamicPrompts": False,
                     "default": "",
-                    "tooltip": "这一张照片要避免的内容（人种/年龄等特征），追加在风格库负向之后",
+                    "tooltip": "选「自定义」时：这里就是**完整的负向提示词**；"
+                               "选风格库风格时：这一张要避免的内容，追加在风格负向后。留空 = 不加负向",
                 }),
             }
         }
@@ -159,6 +170,17 @@ class StylePromptSelector:
     CATEGORY = "style"
 
     def select(self, style, describe, avoid):
+        extra_pos = (describe or "").strip()
+        extra_neg = (avoid or "").strip()
+
+        # 自定义模式：两个文本框就是最终提示词，不读库、不拼接。
+        if style == CUSTOM_STYLE:
+            LOG.info("[style-prompt] 自定义模式：正向 %d 字符 / 负向 %d 字符（不读风格库）",
+                     len(extra_pos), len(extra_neg))
+            if not extra_pos:
+                LOG.warning("[style-prompt] 自定义模式下正向提示词为空，模型会自由发挥")
+            return (extra_pos, extra_neg)
+
         styles = load_styles()
         lib_pos, lib_neg = styles.get(style, ("", ""))
         if not lib_pos and styles:
@@ -169,8 +191,6 @@ class StylePromptSelector:
         if not lib_pos:
             LOG.warning("[style-prompt] 风格库为空：%s", STYLE_DIR)
 
-        extra_pos = (describe or "").strip()
-        extra_neg = (avoid or "").strip()
         pos = "\n".join(t for t in (lib_pos, extra_pos) if t)
         neg = "\n".join(t for t in (lib_neg, extra_neg) if t)
 

@@ -5,11 +5,11 @@
 
 | 工作流 | 用途 | 速度（RTX 3060 12GB 实测） |
 |---|---|---|
-| `workflows/图片风格转换.json` | 通用图生图风格转换，下拉框切换风格库（水彩/简笔画/高清增强等） | 约 4-6 分钟/张（1152×864） |
+| `workflows/图片风格转换.json` | 通用图生图风格转换，下拉框切换风格库（水彩/简笔画/高清增强等），也可选「自定义」手写完整正/负向提示词 | 约 2 分钟/张（1024×576 / 12 步） |
 | `workflows/抠图.json` | 透明底抠图（BiRefNet 专用分割模型，不改像素） | 约 3 秒/张 |
 | `workflows/文生图.json` | Qwen-Image-2.1 文生图（GGUF + KV 缓存加速） | 待实测 |
 | `workflows/分层文生图.json` | Qwen-Image-Layered 一次生成分层图（文字直接生成多层，LatentCut 切层输出） | 待实测 |
-| `workflows/彩墨画文生图.json` | 中国彩墨画，一次采样出图（默认 864×1536 / 9:16），可接照片做参考图转彩墨画 | 约 6-8 分钟/张（864 级竖幅实测） |
+| `workflows/中国彩墨图生图.json` | 中国彩墨画，文生图 / 照片转彩墨画两用（默认画布 864×1152 / 3:4，通用提示词不绑定具体照片） | 约 5-7 分钟/张（864 级竖幅实测） |
 | `workflows/minimax_h3_i2v_auto_canvas.json` | MiniMax-H3 图生视频（768p GGUF + turbo 8 步 LoRA），画布自动适配任意比例输入图 | 约 30 分钟/5 秒视频（内存紧张时） |
 
 配套一个自建小节点包 `custom_nodes/comfyui-style-prompt/`（风格库下拉选择器 + 存回节点 + 背景填充节点），
@@ -27,6 +27,13 @@
 风格 = `styles/` 目录下一个 `.txt` 文件，文件名（去掉序号）就是下拉框里的名字。
 **新增风格只要丢一个 txt 进去、浏览器 F5 即可**；改内容直接重新 Queue。
 风格文件支持 `#` 注释（详见 `styles/_说明.txt`）。
+
+下拉框第一项是 **「自定义（只用下面两个框）」**：不读风格库，`describe` 框 = 完整正向提示词、
+`avoid` 框 = 完整负向提示词，原样送进模型（前面不加任何库内容）。适合手写一次性提示词，
+不用为了跑一次而新建风格文件。
+
+> ⚠️ 工作流里的 `QwenImage21Cache` **`dtype` 必须保持 `default`**：改成实验性的 `int8`
+> 在本机会在采样第一步抛 `aimdo memory compile error`（KV 缓存量化与动态显存不兼容）。
 
 ### 抠图
 核心节点 `LoadBackgroundRemovalModel + RemoveBackground`（BiRefNet，Swin-L 版），

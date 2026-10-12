@@ -1,0 +1,534 @@
+{
+ "last_node_id": 90,
+ "last_link_id": 11,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "UnetLoaderGGUF",
+   "pos": [
+    40,
+    60
+   ],
+   "size": [
+    330,
+    58
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      1
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UnetLoaderGGUF"
+   },
+   "widgets_values": [
+    "qwen-image-2.1-Q5_K_M.gguf"
+   ],
+   "title": "① 主模型（Qwen-Image-2.1 GGUF）"
+  },
+  {
+   "id": 2,
+   "type": "CLIPLoader",
+   "pos": [
+    40,
+    170
+   ],
+   "size": [
+    330,
+    78
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      3
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen3vl_8b_int8_convrot.safetensors",
+    "qwen_image",
+    "default"
+   ],
+   "title": "② 文本编码器"
+  },
+  {
+   "id": 3,
+   "type": "VAELoader",
+   "pos": [
+    40,
+    300
+   ],
+   "size": [
+    330,
+    58
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      4,
+      10
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "qwen_image_2.1_vae_bf16.safetensors"
+   ],
+   "title": "③ VAE"
+  },
+  {
+   "id": 4,
+   "type": "QwenImage21Cache",
+   "pos": [
+    430,
+    60
+   ],
+   "size": [
+    360,
+    90
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      2
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "QwenImage21Cache"
+   },
+   "widgets_values": [
+    "auto",
+    "default"
+   ],
+   "title": "④ KV 缓存加速（勿删）"
+  },
+  {
+   "id": 5,
+   "type": "TextEncodeQwenImage21",
+   "pos": [
+    430,
+    210
+   ],
+   "size": [
+    420,
+    300
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 3
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 10
+    },
+    {
+     "name": "images.image_1",
+     "type": "IMAGE",
+     "link": 11
+    }
+   ],
+   "outputs": [
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "links": [
+      5
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "links": [
+      6
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "latent",
+     "type": "LATENT",
+     "links": null,
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImage21"
+   },
+   "widgets_values": [
+    "把这张照片转换成中国彩墨山水国画，大师水墨写生风格，宣纸质感。写意用笔：以焦墨简练勾勒景物外轮廓，线条近粗远细；山石用皴擦表现原有质地，墨色浓淡层次丰富。完整保留原图的构图、景物轮廓与纹理细节：地貌形态、山体坡向、纹理走向、景物形状均与原照一致，不增删原图中没有的物体。设色以原照固有色为准，清雅含蓄。天空与云朵只用淡墨晕染、不勾轮廓线，天空与地面之间留白。宣纸纤维纸纹清晰可见。高清细节，4K。",
+    "印章，题字，文字，签名，水印，画面发灰，浑浊，模糊，低分辨率，像素噪点，压缩瑕疵，过曝，荧光色，边框，畸形，杂乱构图，重复元素，照片，摄影，写实照片，3D 渲染，CG，油画，动漫，二次元，卡通，水彩，粉笔画，涂抹，photograph, photorealistic, 3d render, cgi, anime, cartoon, watercolor, blurry, lowres, neon colors, cluttered composition",
+    1280
+   ],
+   "title": "⑤ 提示词（正向 / 负向）——只改这两个框"
+  },
+  {
+   "id": 14,
+   "type": "LoadImage",
+   "pos": [
+    40,
+    420
+   ],
+   "size": [
+    330,
+    320
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      11
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null,
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "5.jpg",
+    "image"
+   ],
+   "title": "⑥ 参考照片（接上=照片转彩墨画；不接=纯文生图）"
+  },
+  {
+   "id": 6,
+   "type": "EmptySD3LatentImage",
+   "pos": [
+    430,
+    580
+   ],
+   "size": [
+    330,
+    110
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      7
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "EmptySD3LatentImage"
+   },
+   "widgets_values": [
+    864,
+    1152,
+    1
+   ],
+   "title": "⑦ 画布 864×1152（3:4，与照片同比例）"
+  },
+  {
+   "id": 7,
+   "type": "KSampler",
+   "pos": [
+    900,
+    60
+   ],
+   "size": [
+    320,
+    270
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 2
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 5
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 6
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      8
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    42,
+    "randomize",
+    26,
+    3.2,
+    "euler",
+    "beta",
+    1.0
+   ],
+   "title": "⑧ 采样（26 步 / cfg 3.2，保结构）"
+  },
+  {
+   "id": 8,
+   "type": "VAEDecode",
+   "pos": [
+    1290,
+    60
+   ],
+   "size": [
+    300,
+    60
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 8
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 4
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      9
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": [],
+   "title": "⑨ 解码"
+  },
+  {
+   "id": 9,
+   "type": "SaveImage",
+   "pos": [
+    1640,
+    60
+   ],
+   "size": [
+    340,
+    400
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 9
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "彩墨画/彩墨画"
+   ],
+   "title": "⑩ 出图"
+  },
+  {
+   "id": 90,
+   "type": "MarkdownNote",
+   "pos": [
+    40,
+    760
+   ],
+   "size": [
+    420,
+    640
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "## 中国彩墨图生图（Qwen-Image-2.1 GGUF）\n\n**一次采样出图 · 通用模板不绑定任何照片 · 文生图 / 照片转彩墨画两用**\n\n### 两种模式\n| 模式 | 怎么做 |\n|---|---|\n| **照片转彩墨画** | `⑥` 选好照片，**把 ⑦ 画布宽高改成原图比例**（3:4 → 864×1152；9:16 → 864×1536；1:1 → 1024×1024；总像素控制在 1.1MP 内）；`⑤ 正向` 用下面的通用模板，**不需要按照片改写**|\n| **纯文生图** | `⑥` 不接（`⑤` 的 images 输入留空），`⑤ 正向` 写题材，画布按需要设比例 |\n\n参考图模式下 **③ VAE 要接到 ⑤**（已接好）：VAE 把参考图编码成 latent 拼进条件序列，这是「构图与纹理不变」的关键；不接只剩视觉塔，构图会漂。\n\n### 通用提示词模板（照片转彩墨画，任何照片直接可用）\n\n```\n把这张照片转换成中国彩墨山水国画，大师水墨写生风格，宣纸质感。写意用笔：以焦墨简练勾勒景物外轮廓，线条近粗远细；山石用皴擦表现原有质地，墨色浓淡层次丰富。完整保留原图的构图、景物轮廓与纹理细节：地貌形态、山体坡向、纹理走向、景物形状均与原照一致，不增删原图中没有的物体。设色以原照固有色为准，清雅含蓄。天空与云朵只用淡墨晕染、不勾轮廓线，天空与地面之间留白。宣纸纤维纸纹清晰可见。高清细节，4K。\n```\n\n负向词（只管画风与画质，**不列任何现实物体**）：\n\n```\n印章，题字，文字，签名，水印，画面发灰，浑浊，模糊，低分辨率，像素噪点，压缩瑕疵，过曝，荧光色，边框，畸形，杂乱构图，重复元素，照片，摄影，写实照片，3D 渲染，CG，油画，动漫，二次元，卡通，水彩，粉笔画，涂抹，photograph, photorealistic, 3d render, cgi, anime, cartoon, watercolor, blurry, lowres, neon colors, cluttered composition\n```\n\n### 三条铁律（都是踩坑换来的）\n1. **负向词里不列现实物体**。以前为了「防止画蛇添足」，把「护栏/房屋/人物/栈道/船只/路灯/电线杆」写进负向——但换个题材（照片里真有人物、房子）就会误伤。负向只放画风词和画质词。\n2. **不写「原图没有什么」**。原图没树，就什么都不写；写「不要长树 / 保持裸露岩石」反而可能把树画出来。正向只描述「原图有什么」和「要变成什么风格」。\n3. **「保留清单」只写原图确实存在的东西**。曾把照片里的粉色路面误读成「红色护栏」写进保留清单，结果连续四版都凭空长出护栏——提示词写什么，模型就画什么。\n\n### 想让某个特征更突出（可选）\n在正向里点名它，例如「山体的横向彩条层理是主要特征，务必保留」。点名**存在**的东西有效；点名**不存在**的东西会把它们画出来。一次只加一句，改完再对比。\n\n### 风格浓度与保真度（同一照片 + 同一种子实测）\n| 版本 | 结构保真 | 上半部色距 | 饱和度 | 明度 | 纹理密度 |\n|---|---|---|---|---|---|\n| **本工作流默认（= P 版，保真优先）** | **0.805** | 24.7 | 0.151 | 0.726 | 11.9 |\n| 加「主色大面积铺陈」（P3，色浓但整体变暗） | 0.699 | 49.4 | 0.255 | 0.621 | 12.2 |\n| 加「亮部/中间调橙色块点染」（P5，已否掉） | 0.503 | 28.7 | 0.245 | 0.810 | 9.1 |\n| 照片专用 6 段式指令（旧 O 版） | 0.363 | 39.9 | 0.288 | 0.851 | 7.0 |\n| 旧 I 版（少约束） | 0.584 | 14.6 | 0.241 | 0.734 | 12.3 |\n| 参考：原照 | 1.000 | 0 | 0.388 | 0.798 | 12.9 |\n\n> **默认版就是「保真优先」那一档**：结构保真 0.805、纹理密度 11.9（原照 12.9），细小皴笔与原照的山体纹理都被保住。代价是颜色偏素（饱和度 0.151，原照 0.388）。\n> **加色块 = 拿纹理换颜色，代价很大**：「主色大面积铺陈」会让整体变暗（明度 0.726→0.621），结构保真掉到 0.699；「亮部/中间调橙色块点染」更狠——结构保真掉到 0.503、**纹理密度 11.9→9.1**，原照山体上的彩条纹理被色块盖平（用户实测后明确否掉此方向）。所以本工作流默认**不写任何加色块指令**，宁可素一点，先把原照纹理留住。\n> **提示词越「指令化」越容易失真**：旧版把地貌特征写成分段清单（6 段、逐条约束），结构保真只有 0.363，纹理密度掉到 7.0（山体被重画）；换成简短的通用风格描述后，结构保真升到 0.805、纹理密度回到 11.9（接近原照），细节和笔触反而更好。\n> **cfg 是「保真 ↔ 创意」旋钮，不是墨色旋钮**：cfg ≤ 3.4 保结构，cfg > 4 山体会被重画。要浓墨靠提示词，不要拉 cfg。\n> **img2i 链路（照片先 VAEEncode 再部分重绘）更保守**：实测 denoise 0.65 时结构保真 0.994，几乎就是原照片、风格化不足。本工作流默认的「空 latent + 参考图条件」链路平衡最好，故保留。\n\n> **「显得暗淡」多半不是饱和度不够，而是明度和中间调**（实测：平台成品与我们的饱和度几乎一样，但明度 0.79 vs 0.73）。提亮写「宣纸洁白、明度略高、淡墨清透、避免灰暗浑浊的中间调」，不要笼统写「更鲜艳」——容易推到糖果色。\n> **不要用「加色块」来提浓**：想浓一点优先调墨（「焦墨勾勒、墨色再浓一分」），而不是加彩色色块——色块一定会盖掉原照的纹理细节。\n\n### 调参\n| 症状 | 怎么调 |\n|---|---|\n| 颜色偏淡、不够浓 | **先别加色块**（会抹平原照纹理）。优先调墨：「焦墨勾勒、墨色浓一分」，或小幅提饱和「设色略浓、不要偏灰」（代价：整体略变暗）|\n| 山体/岩石纹理被抹平 | 正向里是不是有「橙色块点染 / 大面积色块铺陈 / 色块渲染 / 晕染过渡」这类**加色块**词？删掉即回到默认的完整纹理（实测纹理密度 9.1 → 11.9）|\n| 山体被重画 / 地貌走样 | cfg 降到 3.0~3.2 |\n| 凭空多出东西 | 是不是被写进正向「保留清单」了？删掉那个词 |\n| 细节丢失（带参考图） | 把 ⑤ 的 `resolution` 调到 1280~1536（与画布接近）|\n| 整体发灰发暗 | 正向加「宣纸洁白、明度略高、淡墨清透」；别用「加色块」提亮 |\n| 想更快 | ⑦ 改 720×960（像素少 30%）；或 ⑧ 步数降到 20 |\n| 要更大尺寸 | ⑦ 等比放大，12GB 显存建议 ≤1.5MP |\n\n### 内存 / 性能\n`resolution` 调到 1536 以上时，本机偶尔触发 comfy-aimdo 原生报错（`aimdo memory compile error`，会带崩服务）。1280 是安全值；真要更大，可给启动器加 `--disable-dynamic-vram`。\nRTX 3060 12GB + `--lowvram`：864×1152 / 26 步约 4~5 分钟一张。\n\n### 换题材（纯文生图时改 `⑤ 正向` 第一句）\n`一枝斜出的梅花，雪意朦胧，背景留白` / `远山瀑布，飞瀑直下，山间云气` / `荷塘一角，荷叶田田，一支半开的荷花`\n\n### 提示词写法（彩墨画）\n- **写意**：淡雅晕染 + 毛笔宣纸质感 + 淡彩 + 留白；**工笔**写「工笔重彩、勾勒填色」\n- 颜料词（花青/赭石/藤黄/胭脂/石青）比「蓝的、黄的」有效得多\n- 真正的分辨率靠 ⑦ 的宽高，别只写「4K」指望模型自己加分辨率\n- 想客观比较两版提示词：缩到 64×64 灰度算相关系数（结构保真），比上半部平均色与原照的色距（固有色保持），再看饱和度/明度/纹理梯度（脚本 `.workbuddy/tools/metrics_ink.py`）\n\n### 纯文生图模板（`⑥ 参考照片` 断开时用）\n\n```\n中国江南山水，远山层叠、云雾留白，山下公路蜿蜒、一叶扁舟。\n以水墨为主、设色含蓄：用焦墨勾勒物象轮廓，线条劲挺清晰；山石用皴法皑擦出纹理，笔锋苍劲带飞白；\n色彩只以赭石、花青为主，局部点染少量朱砂，饱和度适中，不要大面积高饱和色块；\n墨色浓淡层次丰富，黑白灰层次分明；宣纸纤维纹理清晰可见，大面积留白营造意境。\n超高清画质，4K，细节清晰，9:16 竖幅构图。\n```\n"
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   1,
+   0,
+   4,
+   0,
+   "MODEL"
+  ],
+  [
+   2,
+   4,
+   0,
+   7,
+   0,
+   "MODEL"
+  ],
+  [
+   3,
+   2,
+   0,
+   5,
+   0,
+   "CLIP"
+  ],
+  [
+   4,
+   3,
+   0,
+   8,
+   1,
+   "VAE"
+  ],
+  [
+   5,
+   5,
+   0,
+   7,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   6,
+   5,
+   1,
+   7,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   7,
+   6,
+   0,
+   7,
+   3,
+   "LATENT"
+  ],
+  [
+   8,
+   7,
+   0,
+   8,
+   0,
+   "LATENT"
+  ],
+  [
+   9,
+   8,
+   0,
+   9,
+   0,
+   "IMAGE"
+  ],
+  [
+   10,
+   3,
+   0,
+   5,
+   1,
+   "VAE"
+  ],
+  [
+   11,
+   14,
+   0,
+   5,
+   2,
+   "IMAGE"
+  ]
+ ],
+ "config": {},
+ "extra": {},
+ "version": 0.4
+}
