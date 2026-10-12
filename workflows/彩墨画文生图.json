@@ -1,6 +1,6 @@
 {
  "last_node_id": 90,
- "last_link_id": 17,
+ "last_link_id": 11,
  "nodes": [
   {
    "id": 1,
@@ -91,7 +91,7 @@
      "type": "VAE",
      "links": [
       4,
-      5
+      10
      ],
      "slot_index": 0
     }
@@ -130,8 +130,7 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      2,
-      12
+      2
      ],
      "slot_index": 0
     }
@@ -164,6 +163,16 @@
      "name": "clip",
      "type": "CLIP",
      "link": 3
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 10
+    },
+    {
+     "name": "images.image_1",
+     "type": "IMAGE",
+     "link": 11
     }
    ],
    "outputs": [
@@ -171,8 +180,7 @@
      "name": "positive",
      "type": "CONDITIONING",
      "links": [
-      6,
-      13
+      5
      ],
      "slot_index": 0
     },
@@ -180,15 +188,14 @@
      "name": "negative",
      "type": "CONDITIONING",
      "links": [
-      7,
-      14
+      6
      ],
      "slot_index": 1
     },
     {
      "name": "latent",
      "type": "LATENT",
-     "links": [],
+     "links": null,
      "slot_index": 2
     }
    ],
@@ -203,6 +210,46 @@
    "title": "⑤ 提示词（正向 / 负向）——只改这两个框"
   },
   {
+   "id": 14,
+   "type": "LoadImage",
+   "pos": [
+    40,
+    420
+   ],
+   "size": [
+    330,
+    320
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      11
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null,
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "5.jpg",
+    "image"
+   ],
+   "title": "⑥ 参考照片（接上=照片转彩墨画；不接=纯文生图）"
+  },
+  {
    "id": 6,
    "type": "EmptySD3LatentImage",
    "pos": [
@@ -214,7 +261,7 @@
     110
    ],
    "flags": {},
-   "order": 5,
+   "order": 6,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -222,7 +269,7 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      8
+      7
      ],
      "slot_index": 0
     }
@@ -235,7 +282,7 @@
     1536,
     1
    ],
-   "title": "⑥ 画布 864×1536（正好 9:16）"
+   "title": "⑦ 画布 864×1536（正好 9:16）"
   },
   {
    "id": 7,
@@ -249,7 +296,7 @@
     270
    ],
    "flags": {},
-   "order": 6,
+   "order": 7,
    "mode": 0,
    "inputs": [
     {
@@ -260,17 +307,17 @@
     {
      "name": "positive",
      "type": "CONDITIONING",
-     "link": 6
+     "link": 5
     },
     {
      "name": "negative",
      "type": "CONDITIONING",
-     "link": 7
+     "link": 6
     },
     {
      "name": "latent_image",
      "type": "LATENT",
-     "link": 8
+     "link": 7
     }
    ],
    "outputs": [
@@ -278,8 +325,7 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      9,
-      11
+      8
      ],
      "slot_index": 0
     }
@@ -288,7 +334,7 @@
     "Node name for S&R": "KSampler"
    },
    "widgets_values": [
-    20261010,
+    42,
     "randomize",
     20,
     3.5,
@@ -296,7 +342,7 @@
     "beta",
     1.0
    ],
-   "title": "⑦ 第一段采样（20 步 / cfg 3.5，与本仓库其它工作流一致）"
+   "title": "⑧ 采样（20 步 / cfg 3.5）"
   },
   {
    "id": 8,
@@ -310,13 +356,13 @@
     60
    ],
    "flags": {},
-   "order": 7,
+   "order": 8,
    "mode": 0,
    "inputs": [
     {
      "name": "samples",
      "type": "LATENT",
-     "link": 9
+     "link": 8
     },
     {
      "name": "vae",
@@ -329,7 +375,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      10
+      9
      ],
      "slot_index": 0
     }
@@ -338,7 +384,7 @@
     "Node name for S&R": "VAEDecode"
    },
    "widgets_values": [],
-   "title": "⑧ 解码"
+   "title": "⑨ 解码"
   },
   {
    "id": 9,
@@ -352,187 +398,13 @@
     400
    ],
    "flags": {},
-   "order": 8,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "images",
-     "type": "IMAGE",
-     "link": 10
-    }
-   ],
-   "outputs": [],
-   "properties": {
-    "Node name for S&R": "SaveImage"
-   },
-   "widgets_values": [
-    "彩墨画/基础_864x1536"
-   ],
-   "title": "⑨ 出图：基础尺寸"
-  },
-  {
-   "id": 10,
-   "type": "LatentUpscale",
-   "pos": [
-    900,
-    400
-   ],
-   "size": [
-    320,
-    130
-   ],
-   "flags": {},
    "order": 9,
    "mode": 0,
    "inputs": [
     {
-     "name": "samples",
-     "type": "LATENT",
-     "link": 11
-    }
-   ],
-   "outputs": [
-    {
-     "name": "LATENT",
-     "type": "LATENT",
-     "links": [
-      15
-     ],
-     "slot_index": 0
-    }
-   ],
-   "properties": {
-    "Node name for S&R": "LatentUpscale"
-   },
-   "widgets_values": [
-    "bicubic",
-    1296,
-    2304,
-    "disabled"
-   ],
-   "title": "⑩ 放大到 1296×2304（1.5×，仍是 9:16）"
-  },
-  {
-   "id": 11,
-   "type": "KSampler",
-   "pos": [
-    1290,
-    400
-   ],
-   "size": [
-    320,
-    270
-   ],
-   "flags": {},
-   "order": 10,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "model",
-     "type": "MODEL",
-     "link": 12
-    },
-    {
-     "name": "positive",
-     "type": "CONDITIONING",
-     "link": 13
-    },
-    {
-     "name": "negative",
-     "type": "CONDITIONING",
-     "link": 14
-    },
-    {
-     "name": "latent_image",
-     "type": "LATENT",
-     "link": 15
-    }
-   ],
-   "outputs": [
-    {
-     "name": "LATENT",
-     "type": "LATENT",
-     "links": [
-      16
-     ],
-     "slot_index": 0
-    }
-   ],
-   "properties": {
-    "Node name for S&R": "KSampler"
-   },
-   "widgets_values": [
-    20261011,
-    "randomize",
-    10,
-    3.5,
-    "euler",
-    "beta",
-    0.3
-   ],
-   "title": "⑪ 第二段细化（10 步 / denoise 0.3，只补细节不改构图）"
-  },
-  {
-   "id": 12,
-   "type": "VAEDecode",
-   "pos": [
-    1670,
-    400
-   ],
-   "size": [
-    300,
-    60
-   ],
-   "flags": {},
-   "order": 11,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "samples",
-     "type": "LATENT",
-     "link": 16
-    },
-    {
-     "name": "vae",
-     "type": "VAE",
-     "link": 5
-    }
-   ],
-   "outputs": [
-    {
-     "name": "IMAGE",
-     "type": "IMAGE",
-     "links": [
-      17
-     ],
-     "slot_index": 0
-    }
-   ],
-   "properties": {
-    "Node name for S&R": "VAEDecode"
-   },
-   "widgets_values": [],
-   "title": "⑫ 解码"
-  },
-  {
-   "id": 13,
-   "type": "SaveImage",
-   "pos": [
-    2010,
-    400
-   ],
-   "size": [
-    340,
-    400
-   ],
-   "flags": {},
-   "order": 12,
-   "mode": 0,
-   "inputs": [
-    {
      "name": "images",
      "type": "IMAGE",
-     "link": 17
+     "link": 9
     }
    ],
    "outputs": [],
@@ -540,9 +412,9 @@
     "Node name for S&R": "SaveImage"
    },
    "widgets_values": [
-    "彩墨画/4K_1296x2304"
+    "彩墨画/彩墨画"
    ],
-   "title": "⑬ 出图：高分辨率版"
+   "title": "⑩ 出图"
   },
   {
    "id": 90,
@@ -553,16 +425,16 @@
    ],
    "size": [
     420,
-    560
+    620
    ],
    "flags": {},
-   "order": 13,
+   "order": 10,
    "mode": 0,
    "inputs": [],
    "outputs": [],
    "properties": {},
    "widgets_values": [
-    "## 彩墨画文生图（Qwen-Image-2.1 GGUF）\n\n**文生图 · 9:16 竖幅 · 两段式（基础 → 细化）**\n\n### 用法\n1. 只改 `⑤ 提示词` 里的**正向**内容（第一句写你要画的题材）；负向一般不用动\n2. `Queue` → output 里两张图：`彩墨画/基础_*.png` 与 `彩墨画/4K_*.png`\n\n### 两段在做什么\n| 段 | 节点 | 作用 |\n|---|---|---|\n| 一段 | ⑥`EmptySD3LatentImage` 864×1536 → ⑦ KSampler 20 步 | 定构图与墨色，`EmptySD3LatentImage` 才能指定 9:16（编码器自带的空 latent 只会出正方形）|\n| 二段 | ⑩ LatentUpscale 1.5× → ⑪ KSampler 10 步 denoise 0.3 | 只补纸纹与笔触细节，构图不变 |\n\n步数与本仓库其它工作流一致（20 步 / cfg 3.5），适配 12GB 显存 + `--lowvram`；\n彩墨画这类题材步数少反而更干净，噪点少、墨色更整。\n\n### 调参\n| 症状 | 怎么调 |\n|---|---|\n| 构图乱 / 墨色脏 | 一段 steps 降到 16，cfg 降到 3.0 |\n| 线条不够细腻 | 一段 steps 提到 28，或二段 denoise 提到 0.4 |\n| 想再快一点 | ⑥ 改成 720×1280、⑩ 同步改成 1080×1920（像素少一半，约快 30%）|\n| 想要更大尺寸 | ⑥ 的 width/height 等比放大（如 1088×1920），⑩ 同步改成 1632×2880 |\n| 显存吃紧 | 选中 ⑪ 按 M 静音，只用基础尺寸出图 |\n| 第二段太慢 | 二段 steps 10 → 6，或直接静音 |\n\n### 换题材\n把 `⑤ 正向` 的第一句替换即可，例：\n`一枝斜出的梅花，雪意朦胧，背景留白` / `远山瀑布，飞瀑直下，山间云气` /\n`荷塘一角，荷叶田田，一支半开的荷花`\n\n### 提示词写法（彩墨画）\n- **写意**：淡雅晕染 + 毛笔宣纸质感 + 淡彩 + 留白；**工笔**则写「工笔重彩、勾勒填色」\n- 颜料词（花青/赭石/藤黄/胭脂/石青）比「蓝的、黄的」有效得多\n- 4K 已在提示词里；真正的分辨率靠 ⑥ 的宽高，别只写「4K」指望模型自己加分辨率\n- 竖幅构图建议在提示词里也点一句「9:16 竖幅」，双保险\n"
+    "## 彩墨画文生图（Qwen-Image-2.1 GGUF）\n\n**一次采样出图 · 竖幅 9:16 · 可用照片做参考**\n\n### 两种模式\n| 模式 | 怎么做 |\n|---|---|\n| **纯文生图** | `⑥ 参考照片` 放着不管（不接线就等于没有），`⑤ 正向` 写题材，画布 9:16 |\n| **照片转彩墨画** | `⑥` 选好照片，**把 ⑦ 的宽高改成原图比例**（3:4 竖图填 864×1152，9:16 填 864×1536），`⑤ 正向` 换成指令式（模板见下）|\n\n参考图模式下 **③ VAE 要接到 ⑤**（已接好）：VAE 把参考图编码成结构 latent，这是「构图不变」的关键；不接只剩视觉塔，构图会漂。\n\n### 指令式提示词模板（照片转彩墨画）\n\n```\n把这张照片转换成中国彩墨画（淡彩写意）：淡雅的水墨晕染质感，毛笔在宣纸上的笔触，细腻流畅的线条勾勒物象结构，淡彩渲染，以花青、赭石、藤黄、胭脂等颜料薄涂点染，宣纸纤维纹理清晰可见，墨色浓淡层次丰富，大面积留白。\n保持原图的构图、主体、视角与光影关系不变，只改变画法和质感。超高清画质，4K，细节清晰。\n```\n\n### 调参\n| 症状 | 怎么调 |\n|---|---|\n| 构图乱 / 墨色脏 | ⑧ steps 降到 16，cfg 降到 3.0 |\n| 线条不够细腻 | ⑧ steps 提到 28 |\n| 想更快 | ⑦ 改 720×1280（像素少 40%，约快 40%）|\n| 要更大尺寸 | ⑦ 等比放大（如 1088×1920），慢但直接；本机 12GB 显存建议不超过 1.5MP |\n| 出图太糊（带参考图时） | 把 ⑤ 的 `resolution` 调大到与画布接近（如 1536）|\n\n> 曾经有个「二段细化」（放大 1.5× 再 denoise 0.3 重采样）——**已去掉**：\n> 本机跑大图太慢，而带参考图 latent 时二段反而把画面抹糊，得不偿失。\n\n### 换题材（纯文生图时改 `⑤ 正向` 第一句）\n`一枝斜出的梅花，雪意朦胧，背景留白` / `远山瀑布，飞瀑直下，山间云气` /\n`荷塘一角，荷叶田田，一支半开的荷花`\n\n### 提示词写法（彩墨画）\n- **写意**：淡雅晕染 + 毛笔宣纸质感 + 淡彩 + 留白；**工笔**则写「工笔重彩、勾勒填色」\n- 颜料词（花青/赭石/藤黄/胭脂/石青）比「蓝的、黄的」有效得多\n- 4K 已在提示词里；真正的分辨率靠 ⑦ 的宽高，别只写「4K」指望模型自己加分辨率\n- 竖幅构图建议在提示词里也点一句「9:16 竖幅」，双保险\n"
    ]
   }
  ],
@@ -601,14 +473,6 @@
   ],
   [
    5,
-   3,
-   0,
-   12,
-   1,
-   "VAE"
-  ],
-  [
-   6,
    5,
    0,
    7,
@@ -616,7 +480,7 @@
    "CONDITIONING"
   ],
   [
-   7,
+   6,
    5,
    1,
    7,
@@ -624,7 +488,7 @@
    "CONDITIONING"
   ],
   [
-   8,
+   7,
    6,
    0,
    7,
@@ -632,7 +496,7 @@
    "LATENT"
   ],
   [
-   9,
+   8,
    7,
    0,
    8,
@@ -640,7 +504,7 @@
    "LATENT"
   ],
   [
-   10,
+   9,
    8,
    0,
    9,
@@ -648,59 +512,19 @@
    "IMAGE"
   ],
   [
-   11,
-   7,
-   0,
    10,
-   0,
-   "LATENT"
-  ],
-  [
-   12,
-   4,
-   0,
-   11,
-   0,
-   "MODEL"
-  ],
-  [
-   13,
-   5,
-   0,
-   11,
-   1,
-   "CONDITIONING"
-  ],
-  [
-   14,
-   5,
-   1,
-   11,
-   2,
-   "CONDITIONING"
-  ],
-  [
-   15,
-   10,
-   0,
-   11,
    3,
-   "LATENT"
+   0,
+   5,
+   1,
+   "VAE"
   ],
   [
-   16,
    11,
+   14,
    0,
-   12,
-   0,
-   "LATENT"
-  ],
-  [
-   17,
-   12,
-   0,
-   13,
-   0,
+   5,
+   2,
    "IMAGE"
   ]
  ],
