@@ -1,6 +1,6 @@
 {
-  "last_node_id": 15,
-  "last_link_id": 22,
+  "last_node_id": 18,
+  "last_link_id": 24,
   "nodes": [
     {
       "id": 1,
@@ -270,8 +270,8 @@
       "widgets_values": [
         42,
         "randomize",
-        12,
-        3.5,
+        8,
+        1.0,
         "euler",
         "beta",
         1.0
@@ -394,7 +394,7 @@
       "title": "KV 缓存加速（勿删）",
       "pos": [
         380,
-        340
+        440
       ],
       "size": [
         460,
@@ -407,7 +407,7 @@
         {
           "name": "model",
           "type": "MODEL",
-          "link": 21
+          "link": 24
         }
       ],
       "outputs": [
@@ -429,18 +429,58 @@
       ]
     },
     {
-      "id": 15,
+      "id": 16,
+      "type": "LoraLoaderBypassModelOnly",
+      "pos": [
+        380,
+        340
+      ],
+      "size": [
+        460,
+        82
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            24
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderBypassModelOnly"
+      },
+      "widgets_values": [
+        "qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors",
+        1.0
+      ],
+      "title": "⑯ 极速档 Turbo LoRA（Ctrl+B 绕过 = 回到质量档）"
+    },
+    {
+      "id": 18,
       "type": "MarkdownNote",
       "pos": [
         380,
-        460
+        580
       ],
       "size": [
         470,
-        620
+        720
       ],
       "flags": {},
-      "order": 10,
+      "order": 11,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -448,19 +488,11 @@
         "Node name for S&R": "MarkdownNote"
       },
       "widgets_values": [
-        "<!-- 由 .workbuddy/tools/patch_style_workflow.py 生成 -->\n\n## 图片风格转换（Qwen-Image-2.1 GGUF）\n\n**参考照片 + 提示词 → 新图**。画布尺寸 = 参考图按 ⑤ 的 `resolution` 缩放后的尺寸\n（1.jpg 是 332×187 → 画布 1024×576），**换照片不用手改宽高**。\n\n### 提示词从哪来 → ⑬「风格提示词」下拉框\n\n| 下拉选什么 | 送进模型的提示词怎么组成 |\n|---|---|\n| **自定义（只用下面两个框）** | **完全手写**：`describe` 框 = 正向提示词，`avoid` 框 = 负向提示词，**前面不加任何内容** |\n| 水彩画 / 简笔画 / hd_img | `ComfyUI\\styles\\*.txt` 里的通用规则（`---负向---` 前 = 正向，后 = 负向）+ 两个框里的个体信息 |\n\n### 自定义模式怎么用（三步）\n\n1. ⑬ 下拉选 **自定义（只用下面两个框）**\n2. 上面框写正向提示词（**留空 = 模型自由发挥，一般不是你要的**）；下面框写负向，可留空\n3. ④ 号 LoadImage 换参考照片 → `Queued` 运行\n\n> 「自定义」这一项由 `custom_nodes/comfyui-style-prompt` 提供，**凡是用到该节点的工作流都能选**；\n> 想把下拉里显示的文字改掉，改 `nodes.py` 顶部的 `CUSTOM_STYLE` 即可（改完要重启 ComfyUI）。\n\n### 加 / 改风格（都不用动工作流）\n\n- **加风格**：`ComfyUI\\styles\\` 里放一个 `04-xxx.txt`，文件名即风格名，重启后出现在下拉框\n- **正负向分隔**：文件里单独一行写 `---负向---`，其后的内容作为该风格的负向提示词\n- **注释**：`#` 或 `//` 开头的整行、`/* ... */` 块注释，读取时自动剔除\n- **改完直接重跑**：节点按风格库文件的时间戳判断变化，不会被上次的执行缓存骗过去\n\n### 采样参数（⑥ KSampler）\n\n12 步 / cfg 3.5 / euler + beta / denoise 1.0（`latent_image` 接 ⑤ 编码节点的 `latent`，\n尺寸 = 参考图比例的空 latent）。\n\n| 想要的 | 怎么改 |\n|---|---|\n| 更细腻 | 12 步 → 20 步 |\n| 更贴参考图的结构/构图 | cfg 3.5 → 3.0 |\n| 只想轻度风格化（更像原照片） | ⑥ 的 `latent_image` 从 ⑤ 的 `latent` 换成经 VAEEncode 的参考图，`denoise` 调 0.6~0.8 |\n\n本机 RTX 3060 12GB + `--lowvram`：1024×576 / 12 步约 70 秒一张；\n彩墨画工作流（864×1152 / 26 步）约 5 分钟一张，可作横向参考。\n"
+        "<!-- 由 .workbuddy/tools/patch_style_workflow.py 生成 -->\n\n## 图片风格转换（Qwen-Image-2.1 GGUF）\n\n**参考照片 + 提示词 → 新图**。画布尺寸 = 参考图按 ⑤ 的 `resolution` 缩放后的尺寸\n（1.jpg 是 332×187 → 画布 1024×576），**换照片不用手改宽高**。\n\n### 两个档位（只差一个节点 + 两个参数）\n\n| | 极速档（**默认**） | 质量档 |\n|---|---|---|\n| ⑯ Turbo LoRA | 开启 | **选中 ⑯ 按 Ctrl+B 绕过** |\n| ⑥ 步数 / cfg | 8 步 / 1.0 | 12 步 / 3.5 |\n| 单张耗时（1024×576） | 约 48 秒 | 约 70 秒 |\n| 负向提示词 | **不参与计算** | 生效 |\n\n> ⚠️ **极速档的代价 = 负向提示词失效**（cfg 1.0 时负向在数值上被忽略）。\n> 靠负向压制内容的风格会变弱：`02-简笔画` 靠负向的 `photorealistic, 3d render` 压向涂鸦、\n> `03-hd_img` 靠 `changed face, changed identity` 防止改脸。\n> **用这两个风格时建议切回质量档**（Ctrl+B 绕过 ⑯，⑥ 改回 12 步 / cfg 3.5）。\n> 补救办法：把关键负向词改写进风格文件的**正向**里（如 `Avoid photorealistic results`），\n> 极速档也能带上。`01-水彩画` 这类负向只写「别发暗发灰」的风格，极速档基本够用。\n> ⑯ 用的 Turbo LoRA 许可为 Qwen Research License（**非商用**）。\n\n### 提示词从哪来 → ⑬「风格提示词」下拉框\n\n| 下拉选什么 | 送进模型的提示词怎么组成 |\n|---|---|\n| **自定义（只用下面两个框）** | **完全手写**：`describe` 框 = 正向提示词，`avoid` 框 = 负向提示词，**前面不加任何内容** |\n| 水彩画 / 简笔画 / hd_img | `ComfyUI\\styles\\*.txt` 里的通用规则（`---负向---` 前 = 正向，后 = 负向）+ 两个框里的个体信息 |\n\n### 自定义模式怎么用（三步）\n\n1. ⑬ 下拉选 **自定义（只用下面两个框）**\n2. 上面框写正向提示词（**留空 = 模型自由发挥，一般不是你要的**）；下面框写负向，可留空\n3. ④ 号 LoadImage 换参考照片 → `Queued` 运行\n\n> 「自定义」这一项由 `custom_nodes/comfyui-style-prompt` 提供，**凡是用到该节点的工作流都能选**；\n> 想把下拉里显示的文字改掉，改 `nodes.py` 顶部的 `CUSTOM_STYLE` 即可（改完要重启 ComfyUI）。\n\n### 加 / 改风格（都不用动工作流）\n\n- **加风格**：`ComfyUI\\styles\\` 里放一个 `04-xxx.txt`，文件名即风格名，重启后出现在下拉框\n- **正负向分隔**：文件里单独一行写 `---负向---`，其后的内容作为该风格的负向提示词\n- **注释**：`#` 或 `//` 开头的整行、`/* ... */` 块注释，读取时自动剔除\n- **改完直接重跑**：节点按风格库文件的时间戳判断变化，不会被上次的执行缓存骗过去\n\n### 采样与调参（⑥ KSampler）\n\n极速档默认 **8 步 / cfg 1.0** + ⑯ Turbo 蒸馏 LoRA（`latent_image` 接 ⑤ 编码节点的 `latent`，\n尺寸 = 参考图比例算出的空 latent，所以换照片不用手改宽高）。\n\n| 想要的 | 怎么改 |\n|---|---|\n| 就用现在的快档 | 什么都不用动（8 步 / cfg 1.0 / ⑯ 开启） |\n| 负向提示词生效、更细腻 | 选中 ⑯ 按 Ctrl+B 绕过；⑥ 改 12 步（或 20 步）、cfg 3.5 |\n| 更贴参考图的结构/构图 | 质量档下 cfg 3.5 → 3.0 |\n| 只想轻度风格化（更像原照片） | ⑥ 的 `latent_image` 从 ⑤ 的 `latent` 换成经 VAEEncode 的参考图，`denoise` 调 0.6~0.8 |\n\n本机 RTX 3060 12GB + `--lowvram`：1024×576 / 8 步 + Turbo LoRA 约 48 秒一张；\n**服务重启后第一张会慢一些**（LoRA 加载/模型修补是一次性开销，之后一直快）。\n"
       ]
     }
   ],
   "links": [
-    [
-      21,
-      1,
-      0,
-      14,
-      0,
-      "MODEL"
-    ],
     [
       2,
       2,
@@ -556,6 +588,22 @@
       5,
       2,
       "STRING"
+    ],
+    [
+      21,
+      1,
+      0,
+      16,
+      0,
+      "MODEL"
+    ],
+    [
+      24,
+      16,
+      0,
+      14,
+      0,
+      "MODEL"
     ]
   ],
   "config": {},
