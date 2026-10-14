@@ -9,7 +9,8 @@
 | `workflows/抠图.json` | 透明底抠图（BiRefNet 专用分割模型，不改像素） | 约 3 秒/张 |
 | `workflows/文生图.json` | Qwen-Image-2.1 文生图（GGUF + KV 缓存加速） | 待实测 |
 | `workflows/分层文生图.json` | Qwen-Image-Layered 一次生成分层图（文字直接生成多层，LatentCut 切层输出） | 待实测 |
-| `workflows/中国彩墨图生图.json` | 中国彩墨画，文生图 / 照片转彩墨画两用（默认画布 864×1152 / 3:4，通用提示词不绑定具体照片） | 约 5-7 分钟/张（864 级竖幅实测） |
+| `workflows/中国彩墨图生图.json` | 中国彩墨画，文生图 / 照片转彩墨画两用（默认画布 864×1152 / 3:4，通用提示词不绑定具体照片），质量档（26 步 / cfg 3.2） | 约 4-5 分钟/张（864 级竖幅实测） |
+| `workflows/中国彩墨图生图-极速.json` | 同上，挂 Turbo 蒸馏 LoRA（8 步 / cfg 1.0），**日常出图首选**（更快且更贴原照） | 约 47 秒/张（首次约 4 分钟，含 LoRA 加载） |
 | `workflows/minimax_h3_i2v_auto_canvas.json` | MiniMax-H3 图生视频（768p GGUF + turbo 8 步 LoRA），画布自动适配任意比例输入图 | 约 30 分钟/5 秒视频（内存紧张时） |
 
 配套一个自建小节点包 `custom_nodes/comfyui-style-prompt/`（风格库下拉选择器 + 存回节点 + 背景填充节点），
@@ -39,6 +40,19 @@
 核心节点 `LoadBackgroundRemovalModel + RemoveBackground`（BiRefNet，Swin-L 版），
 输出与输入同尺寸的透明 PNG。注意链路中必须过一次 `InvertMask`
 （`JoinImageWithAlpha` 内部做 `alpha = 1 - mask`），`GrowMask` 放在反相前用于去白边。
+
+### 中国彩墨图生图（质量版 / 极速版）
+同一套「空 latent + 参考图条件」链路的两个档位，提示词模板通用、不绑定具体照片
+（换参考照片记得把画布改成同比例，如 9:16 → 864×1536）：
+
+- **极速版**挂 Qwen-Image-2.1 Viggle Turbo 蒸馏 LoRA（8 步 / cfg 1.0），约 47 秒/张，
+  且实测结构保真/纹理密度更好（结构 0.831~0.887 vs 0.534，纹理密度 13.0 vs 11.1），
+  **日常出图首选**。首次运行慢约 3 分钟（LoRA 加载/修补一次性开销），服务不重启就一直快。
+- **质量版**（26 步 / cfg 3.2）保留作对照、以及需要用负向提示词控制画风的场合。
+
+> ⚠️ 本链路中负向提示词是「负资产」：负向里的「照片/摄影/写实」会把画面推离参考图结构
+> （同种子实测结构保真 0.826 → 0.534）。cfg 1.0 时负向不参与计算，反而更贴原照。
+> Turbo LoRA 许可为 Qwen Research License（**非商用**）。
 
 ### MiniMax-H3 图生视频
 `LoadImage → 画布自适应（短边 768、长边 ≤1344、32 对齐）→ TextEncodeQwenImage21 → KSampler → VAEDecode → SaveVideo`。
@@ -89,8 +103,9 @@ python scripts/prepare.py --with-video   # 连 MiniMax-H3 视频模型（约 27G
 | `qwen3vl_8b_int8_convrot.safetensors` | 8.7 GB | `models/text_encoders/` | 基于 [Qwen/Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) 的 int8 convrot 量化版（ComfyUI 社区量化）；也可用官方 BF16 |
 | `qwen_image_2.1_vae_bf16.safetensors` | 0.63 GB | `models/vae/` | [Comfy-Org/Qwen-Image-2.1](https://huggingface.co/Comfy-Org/Qwen-Image-2.1) |
 | `birefnet.safetensors`（仅抠图用） | 0.42 GB | `models/background_removal/` | [Comfy-Org/BiRefNet](https://huggingface.co/Comfy-Org/BiRefNet)（MIT） |
+| `qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors`（仅彩墨极速版用） | 0.84 GB | `models/loras/` | Qwen-Image-2.1 Viggle Turbo 蒸馏 LoRA（社区训练，Qwen Research License） |
 
-- 合计约 **14.7 GB**；国内网络可用 [hf-mirror.com](https://hf-mirror.com) 镜像下载；
+- 合计约 **14.7 GB**（彩墨极速版另需上面的 Turbo LoRA 0.84 GB）；国内网络可用 [hf-mirror.com](https://hf-mirror.com) 镜像下载；
 - **视频工作流另需 MiniMax-H3 全套约 27GB**（主模型 GGUF + FL2VA turbo LoRA + 音视频 VAE 等，
   文件名见工作流各加载节点），`models/unet|text_encoders|loras|vae` 各有对应目录；
 - **文件名必须一字不差**：工作流按文件名找模型；
@@ -112,7 +127,7 @@ python main.py --lowvram --preview-method auto
 ## 目录结构
 
 ```
-├── workflows/                      # 六个工作流（浏览器直接打开）
+├── workflows/                      # 七个工作流（浏览器直接打开）
 ├── styles/                         # 风格库：一个 txt = 一种风格，支持 # 注释
 ├── custom_nodes/comfyui-style-prompt/   # 自建节点：风格下拉选择器 + 存回节点
 ├── patches/                        # ComfyUI-GGUF 的 Qwen-Image 架构补丁
