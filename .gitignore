@@ -12,17 +12,19 @@
 !/custom_nodes/
 !/patches/
 !/scripts/
+!/docs/
 
 # 启动器（.bat 是 GBK 编码，靠 .gitattributes 防止换行符被改写）
+# 其 UTF-8 源与重建/自检脚本在 scripts/launcher/ 下，随 scripts/ 一起跟踪
 !/start_comfyui.bat
-!/start_comfyui.bat.src.txt
-!/start_comfyui.bat.rebuild.py
-!/start_comfyui.bat.selftest.py
 !/start_comfyui_mac.sh
 
 # custom_nodes 里只保留自建节点包
 /custom_nodes/*
 !/custom_nodes/comfyui-style-prompt/
+
+# 启动器首次重建时留下的旧 .bat 备份（本机保险，不进仓库）
+/scripts/launcher/backup/
 
 # Python
 __pycache__/

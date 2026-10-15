@@ -22,8 +22,8 @@ rem  本脚本不含写死的绝对路径：
 rem    ComfyUI 目录 = 本文件所在目录，换电脑、换盘符、换用户名都不用改。
 rem
 rem  【维护须知】start_comfyui.bat 必须是 GBK(936) 编码，中文才不乱码。
-rem   要改内容请改同目录的 start_comfyui.bat.src.txt（UTF-8），
-rem   再运行 start_comfyui.bat.rebuild.py 重新生成；
+rem   要改内容请改 scripts\launcher\start_comfyui.src.txt（UTF-8），
+rem   再运行 python scripts\launcher\rebuild.py 重新生成；
 rem   直接用编辑器改 .bat 容易把中文编码搞坏。
 rem ================================================================
 

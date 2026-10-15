@@ -4,7 +4,7 @@
 把启动行临时替换成打印，跑完即删。
 
 用法：
-    python start_comfyui.bat.selftest.py
+    python scripts/launcher/selftest.py
 
 覆盖两个场景：
   1. 默认环境（comfyui 存在）      -> 应精确定位到 envs\\comfyui\\python.exe
@@ -15,7 +15,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 BAT = ROOT / "start_comfyui.bat"
 
 

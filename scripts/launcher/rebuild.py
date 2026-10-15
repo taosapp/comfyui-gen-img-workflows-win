@@ -1,8 +1,8 @@
-"""重新生成 start_comfyui.bat（GBK / CRLF）。
+"""重新生成仓库根目录的 start_comfyui.bat（GBK / CRLF）。
 
 维护流程：
-  1. 编辑 start_comfyui.bat.src.txt（UTF-8，中文不会乱码）
-  2. 运行本脚本重建 .bat
+  1. 编辑 scripts/launcher/start_comfyui.src.txt（UTF-8，中文不会乱码）
+  2. 在项目根目录运行 python scripts/launcher/rebuild.py
   3. 运行 start_comfyui.bat 验证
 
 为什么需要转码：cmd.exe 在中文 Windows 下按 GBK(936) 解释 .bat 文件，
@@ -12,10 +12,11 @@
 import shutil
 from pathlib import Path
 
-root = Path(__file__).resolve().parent
-src_file = root / "start_comfyui.bat.src.txt"
+launcher = Path(__file__).resolve().parent
+root = launcher.parents[1]
+src_file = launcher / "start_comfyui.src.txt"
 target = root / "start_comfyui.bat"
-bak_dir = root / "_backup"
+bak_dir = launcher / "backup"
 
 src = src_file.read_text(encoding="utf-8")
 
