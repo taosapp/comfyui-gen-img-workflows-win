@@ -1,612 +1,611 @@
 {
-  "last_node_id": 18,
-  "last_link_id": 24,
-  "nodes": [
+ "last_node_id": 18,
+ "last_link_id": 24,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "UnetLoaderGGUF",
+   "pos": [
+    0,
+    0
+   ],
+   "size": [
+    315,
+    58
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "outputs": [
     {
-      "id": 1,
-      "type": "UnetLoaderGGUF",
-      "pos": [
-        0,
-        0
-      ],
-      "size": [
-        315,
-        58
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            21
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "UnetLoaderGGUF"
-      },
-      "widgets_values": [
-        "qwen-image-2.1-Q5_K_M.gguf"
-      ]
-    },
-    {
-      "id": 2,
-      "type": "CLIPLoader",
-      "pos": [
-        0,
-        120
-      ],
-      "size": [
-        315,
-        82
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            2
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CLIPLoader"
-      },
-      "widgets_values": [
-        "qwen3vl_8b_int8_convrot.safetensors",
-        "qwen_image",
-        "default"
-      ]
-    },
-    {
-      "id": 3,
-      "type": "VAELoader",
-      "pos": [
-        0,
-        260
-      ],
-      "size": [
-        315,
-        58
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": [
-            3,
-            11
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VAELoader"
-      },
-      "widgets_values": [
-        "qwen_image_2.1_vae_bf16.safetensors"
-      ]
-    },
-    {
-      "id": 4,
-      "type": "LoadImage",
-      "pos": [
-        0,
-        380
-      ],
-      "size": [
-        315,
-        314
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            4
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "1.jpg",
-        "image"
-      ]
-    },
-    {
-      "id": 5,
-      "type": "TextEncodeQwenImage21",
-      "pos": [
-        1220,
-        0
-      ],
-      "size": [
-        400,
-        240
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 2
-        },
-        {
-          "name": "prompt",
-          "type": "STRING",
-          "widget": {
-            "name": "prompt"
-          },
-          "link": 20
-        },
-        {
-          "name": "negative_prompt",
-          "type": "STRING",
-          "widget": {
-            "name": "negative_prompt"
-          },
-          "link": 23
-        },
-        {
-          "name": "vae",
-          "type": "VAE",
-          "link": 11
-        },
-        {
-          "name": "images.image_1",
-          "type": "IMAGE",
-          "link": 4
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            5
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            9
-          ],
-          "slot_index": 1
-        },
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            10
-          ],
-          "slot_index": 2
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "TextEncodeQwenImage21"
-      },
-      "widgets_values": [
-        "",
-        "",
-        768
-      ],
-      "title": "编码（提示词由左侧节点送入）+ 分辨率"
-    },
-    {
-      "id": 6,
-      "type": "KSampler",
-      "pos": [
-        1220,
-        280
-      ],
-      "size": [
-        315,
-        262
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 22
-        },
-        {
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 5
-        },
-        {
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 9
-        },
-        {
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 10
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            7
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "KSampler"
-      },
-      "widgets_values": [
-        42,
-        "randomize",
-        8,
-        1.0,
-        "euler",
-        "beta",
-        1.0
-      ]
-    },
-    {
-      "id": 7,
-      "type": "VAEDecode",
-      "pos": [
-        1220,
-        580
-      ],
-      "size": [
-        210,
-        46
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 7
-        },
-        {
-          "name": "vae",
-          "type": "VAE",
-          "link": 3
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            8
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VAEDecode"
-      }
-    },
-    {
-      "id": 8,
-      "type": "SaveImage",
-      "pos": [
-        1640,
-        0
-      ],
-      "size": [
-        315,
-        270
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 8
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "image_style_transfer"
-      ]
-    },
-    {
-      "id": 13,
-      "type": "StylePromptSelector",
-      "title": "提示词（通用库 + 本图描述）",
-      "pos": [
-        380,
-        0
-      ],
-      "size": [
-        460,
-        300
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "prompt",
-          "type": "STRING",
-          "links": [
-            20
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "negative",
-          "type": "STRING",
-          "links": [
-            23
-          ],
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "StylePromptSelector"
-      },
-      "widgets_values": [
-        "水彩画",
-        "",
-        ""
-      ]
-    },
-    {
-      "id": 14,
-      "type": "QwenImage21Cache",
-      "title": "KV 缓存加速（勿删）",
-      "pos": [
-        380,
-        440
-      ],
-      "size": [
-        460,
-        82
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 24
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            22
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "QwenImage21Cache"
-      },
-      "widgets_values": [
-        "auto",
-        "default"
-      ]
-    },
-    {
-      "id": 16,
-      "type": "LoraLoaderBypassModelOnly",
-      "pos": [
-        380,
-        340
-      ],
-      "size": [
-        460,
-        82
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 21
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            24
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoraLoaderBypassModelOnly"
-      },
-      "widgets_values": [
-        "qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors",
-        1.0
-      ],
-      "title": "⑯ 极速档 Turbo LoRA（Ctrl+B 绕过 = 回到质量档）"
-    },
-    {
-      "id": 18,
-      "type": "MarkdownNote",
-      "pos": [
-        380,
-        580
-      ],
-      "size": [
-        470,
-        720
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "MarkdownNote"
-      },
-      "widgets_values": [
-        "<!-- 由 .workbuddy/tools/patch_style_workflow.py 生成 -->\n\n## 图片风格转换（Qwen-Image-2.1 GGUF）\n\n**参考照片 + 提示词 → 新图**。画布尺寸 = 参考图按 ⑤ 的 `resolution` 缩放后的尺寸\n（1.jpg 是 332×187 → 画布 1024×576），**换照片不用手改宽高**。\n\n### 两个档位（只差一个节点 + 两个参数）\n\n| | 极速档（**默认**） | 质量档 |\n|---|---|---|\n| ⑯ Turbo LoRA | 开启 | **选中 ⑯ 按 Ctrl+B 绕过** |\n| ⑥ 步数 / cfg | 8 步 / 1.0 | 12 步 / 3.5 |\n| 单张耗时（1024×576） | 约 48 秒 | 约 70 秒 |\n| 负向提示词 | **不参与计算** | 生效 |\n\n> ⚠️ **极速档的代价 = 负向提示词失效**（cfg 1.0 时负向在数值上被忽略）。\n> 靠负向压制内容的风格会变弱：`02-简笔画` 靠负向的 `photorealistic, 3d render` 压向涂鸦、\n> `03-hd_img` 靠 `changed face, changed identity` 防止改脸。\n> **用这两个风格时建议切回质量档**（Ctrl+B 绕过 ⑯，⑥ 改回 12 步 / cfg 3.5）。\n> 补救办法：把关键负向词改写进风格文件的**正向**里（如 `Avoid photorealistic results`），\n> 极速档也能带上。`01-水彩画` 这类负向只写「别发暗发灰」的风格，极速档基本够用。\n> ⑯ 用的 Turbo LoRA 许可为 Qwen Research License（**非商用**）。\n\n### 提示词从哪来 → ⑬「风格提示词」下拉框\n\n| 下拉选什么 | 送进模型的提示词怎么组成 |\n|---|---|\n| **自定义（只用下面两个框）** | **完全手写**：`describe` 框 = 正向提示词，`avoid` 框 = 负向提示词，**前面不加任何内容** |\n| 水彩画 / 简笔画 / hd_img | `ComfyUI\\styles\\*.txt` 里的通用规则（`---负向---` 前 = 正向，后 = 负向）+ 两个框里的个体信息 |\n\n### 自定义模式怎么用（三步）\n\n1. ⑬ 下拉选 **自定义（只用下面两个框）**\n2. 上面框写正向提示词（**留空 = 模型自由发挥，一般不是你要的**）；下面框写负向，可留空\n3. ④ 号 LoadImage 换参考照片 → `Queued` 运行\n\n> 「自定义」这一项由 `custom_nodes/comfyui-style-prompt` 提供，**凡是用到该节点的工作流都能选**；\n> 想把下拉里显示的文字改掉，改 `nodes.py` 顶部的 `CUSTOM_STYLE` 即可（改完要重启 ComfyUI）。\n\n### 加 / 改风格（都不用动工作流）\n\n- **加风格**：`ComfyUI\\styles\\` 里放一个 `04-xxx.txt`，文件名即风格名，重启后出现在下拉框\n- **正负向分隔**：文件里单独一行写 `---负向---`，其后的内容作为该风格的负向提示词\n- **注释**：`#` 或 `//` 开头的整行、`/* ... */` 块注释，读取时自动剔除\n- **改完直接重跑**：节点按风格库文件的时间戳判断变化，不会被上次的执行缓存骗过去\n\n### 采样与调参（⑥ KSampler）\n\n极速档默认 **8 步 / cfg 1.0** + ⑯ Turbo 蒸馏 LoRA（`latent_image` 接 ⑤ 编码节点的 `latent`，\n尺寸 = 参考图比例算出的空 latent，所以换照片不用手改宽高）。\n\n| 想要的 | 怎么改 |\n|---|---|\n| 就用现在的快档 | 什么都不用动（8 步 / cfg 1.0 / ⑯ 开启） |\n| 负向提示词生效、更细腻 | 选中 ⑯ 按 Ctrl+B 绕过；⑥ 改 12 步（或 20 步）、cfg 3.5 |\n| 更贴参考图的结构/构图 | 质量档下 cfg 3.5 → 3.0 |\n| 只想轻度风格化（更像原照片） | ⑥ 的 `latent_image` 从 ⑤ 的 `latent` 换成经 VAEEncode 的参考图，`denoise` 调 0.6~0.8 |\n\n本机 RTX 3060 12GB + `--lowvram`：1024×576 / 8 步 + Turbo LoRA 约 48 秒一张；\n**服务重启后第一张会慢一些**（LoRA 加载/模型修补是一次性开销，之后一直快）。\n"
-      ]
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      21
+     ],
+     "slot_index": 0
     }
+   ],
+   "properties": {
+    "Node name for S&R": "UnetLoaderGGUF"
+   },
+   "widgets_values": [
+    "qwen-image-2.1-Q5_K_M.gguf"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "CLIPLoader",
+   "pos": [
+    0,
+    120
+   ],
+   "size": [
+    315,
+    82
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      2
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen3vl_8b_int8_convrot.safetensors",
+    "qwen_image",
+    "default"
+   ]
+  },
+  {
+   "id": 3,
+   "type": "VAELoader",
+   "pos": [
+    0,
+    260
+   ],
+   "size": [
+    315,
+    58
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      3,
+      11
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "qwen_image_2.1_vae_bf16.safetensors"
+   ]
+  },
+  {
+   "id": 4,
+   "type": "LoadImage",
+   "pos": [
+    0,
+    380
+   ],
+   "size": [
+    315,
+    314
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      4
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "6.png",
+    "image"
+   ]
+  },
+  {
+   "id": 5,
+   "type": "TextEncodeQwenImage21",
+   "pos": [
+    1220,
+    0
+   ],
+   "size": [
+    400,
+    240
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 2
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "widget": {
+      "name": "prompt"
+     },
+     "link": 20
+    },
+    {
+     "name": "negative_prompt",
+     "type": "STRING",
+     "widget": {
+      "name": "negative_prompt"
+     },
+     "link": 23
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 11
+    },
+    {
+     "name": "images.image_1",
+     "type": "IMAGE",
+     "link": 4
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      5
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      9
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      10
+     ],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImage21"
+   },
+   "widgets_values": [
+    "",
+    "",
+    768
+   ],
+   "title": "编码（提示词由左侧节点送入）+ 分辨率"
+  },
+  {
+   "id": 6,
+   "type": "KSampler",
+   "pos": [
+    1220,
+    280
+   ],
+   "size": [
+    315,
+    262
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 22
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 5
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 9
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 10
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      7
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    42,
+    "randomize",
+    8,
+    1.0,
+    "euler",
+    "beta",
+    1.0
+   ]
+  },
+  {
+   "id": 7,
+   "type": "VAEDecode",
+   "pos": [
+    1220,
+    580
+   ],
+   "size": [
+    210,
+    46
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 7
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      8
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   }
+  },
+  {
+   "id": 8,
+   "type": "SaveImage",
+   "pos": [
+    1640,
+    0
+   ],
+   "size": [
+    315,
+    270
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 8
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "image_style_transfer"
+   ]
+  },
+  {
+   "id": 13,
+   "type": "StylePromptSelector",
+   "title": "提示词（通用库 + 本图描述）",
+   "pos": [
+    380,
+    0
+   ],
+   "size": [
+    460,
+    300
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "links": [
+      20
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "negative",
+     "type": "STRING",
+     "links": [
+      23
+     ],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "StylePromptSelector"
+   },
+   "widgets_values": [
+    "水彩画",
+    ""
+   ]
+  },
+  {
+   "id": 14,
+   "type": "QwenImage21Cache",
+   "title": "KV 缓存加速（勿删）",
+   "pos": [
+    380,
+    440
+   ],
+   "size": [
+    460,
+    82
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 24
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      22
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "QwenImage21Cache"
+   },
+   "widgets_values": [
+    "auto",
+    "default"
+   ]
+  },
+  {
+   "id": 16,
+   "type": "LoraLoaderBypassModelOnly",
+   "pos": [
+    380,
+    340
+   ],
+   "size": [
+    460,
+    82
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 21
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      24
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderBypassModelOnly"
+   },
+   "widgets_values": [
+    "qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors",
+    1.0
+   ],
+   "title": "⑯ 极速档 Turbo LoRA（Ctrl+B 绕过 = 回到质量档）"
+  },
+  {
+   "id": 18,
+   "type": "MarkdownNote",
+   "pos": [
+    380,
+    580
+   ],
+   "size": [
+    470,
+    720
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "MarkdownNote"
+   },
+   "widgets_values": [
+    "<!-- 由 scripts/make_style_fast_only.py 生成（2026-10-15 精简为纯极速版） -->\n\n## 图片风格转换（极速版 · Qwen-Image-2.1 GGUF + Turbo LoRA）\n\n**参考照片 + 风格提示词 → 新图**。画布尺寸 = 参考图按 ⑤ 的 `resolution`\n缩放后的尺寸（换照片不用手改宽高）。\n12GB 显存级别显卡：**约 36~60 秒一张**（服务重启后第一张慢，\nLoRA 加载/模型修补是一次性开销，之后一直快）。\n\n### 提示词从哪来 → ⑬「风格提示词」下拉框\n\n| 下拉选什么 | 送进模型的提示词怎么组成 |\n|---|---|\n| **自定义（只用下面这个框）** | **完全手写**：`describe` 框 = 完整正向提示词，**前面不加任何内容** |\n| 水彩画 / 简笔画 / hd_img | `styles\\*.txt` 里的通用规则 + `describe` 框里的个体信息 |\n\n### 自定义模式怎么用（三步）\n\n1. ⑬ 下拉选 **自定义（只用下面这个框）**\n2. 在框里写正向提示词（**留空 = 模型自由发挥，一般不是你要的**）\n3. ④ 号 LoadImage 换参考照片 → `Queued` 运行\n\n### ⚠️ 本工作流 cfg = 1.0：负向提示词不生效（2026-10-15 已删除负向框）\n\n`comfy/samplers.py:610`：cfg = 1.0 时负向条件被直接置 None，UNet 只算正向\n（8 步 = 8 次前向，这正是快的原因）。实测同种子下「负向=帽子」与「负向=空」\n输出**逐像素完全相同**。\n\n因此⑬ 节点上的**负向框已移除**，`styles\\*.txt` 的 `---负向---` 段也不再送出：\n\n- **想约束画面必须写进 `describe`**——要去掉什么就写「去掉 X」。\n  `02-简笔画` 就是范例：「黑白线稿 / 无填充 / 无阴影」全部写在正向；\n- 长指令反而压不住，保持极简；\n- 确需负向生效请用 `中国彩墨图生图.json`（质量版，26 步 / cfg 3.2）的链路。\n\n### 加 / 改风格（都不用动工作流）\n\n- **加风格**：`styles\\` 里放一个 `04-xxx.txt`，文件名即风格名，重启后出现在下拉框\n- **注释**：`#` 或 `//` 开头的整行、`/* ... */` 块注释，读取时自动剔除\n- **改完直接重跑**：节点按风格库文件时间戳判断变化，不会被执行缓存骗过去\n\n### 采样与调参（⑥ KSampler）\n\n默认 **8 步 / cfg 1.0** + ⑯ Turbo 蒸馏 LoRA（强度 1.0）+ ⑭ KV 缓存（`dtype` 保持\n`default`，改 int8 会报 `aimdo memory compile error`）。\n\n| 想要的 | 怎么改 |\n|---|---|\n| 更贴参考图的结构 | ⑤ 的 `resolution` 调大（768 → 1024，耗时增加） |\n| 只想轻度风格化（更像原照片） | ⑥ 的 `latent_image` 从 ⑤ 的 `latent` 换成经 VAEEncode 的参考图，`denoise` 调 0.6~0.8 |\n| 风格更稳 | ⑥ 步数 8 → 10~12（每 +2 步约 +5 秒） |\n\n⑯ 用的 Turbo LoRA 许可为 Qwen Research License（**非商用**）。"
+   ]
+  }
+ ],
+ "links": [
+  [
+   2,
+   2,
+   0,
+   5,
+   0,
+   "CLIP"
   ],
-  "links": [
-    [
-      2,
-      2,
-      0,
-      5,
-      0,
-      "CLIP"
-    ],
-    [
-      3,
-      3,
-      0,
-      7,
-      1,
-      "VAE"
-    ],
-    [
-      4,
-      4,
-      0,
-      5,
-      4,
-      "IMAGE"
-    ],
-    [
-      5,
-      5,
-      0,
-      6,
-      1,
-      "CONDITIONING"
-    ],
-    [
-      7,
-      6,
-      0,
-      7,
-      0,
-      "LATENT"
-    ],
-    [
-      8,
-      7,
-      0,
-      8,
-      0,
-      "IMAGE"
-    ],
-    [
-      9,
-      5,
-      1,
-      6,
-      2,
-      "CONDITIONING"
-    ],
-    [
-      10,
-      5,
-      2,
-      6,
-      3,
-      "LATENT"
-    ],
-    [
-      11,
-      3,
-      0,
-      5,
-      3,
-      "VAE"
-    ],
-    [
-      20,
-      13,
-      0,
-      5,
-      1,
-      "STRING"
-    ],
-    [
-      22,
-      14,
-      0,
-      6,
-      0,
-      "MODEL"
-    ],
-    [
-      23,
-      13,
-      1,
-      5,
-      2,
-      "STRING"
-    ],
-    [
-      21,
-      1,
-      0,
-      16,
-      0,
-      "MODEL"
-    ],
-    [
-      24,
-      16,
-      0,
-      14,
-      0,
-      "MODEL"
-    ]
+  [
+   3,
+   3,
+   0,
+   7,
+   1,
+   "VAE"
   ],
-  "config": {},
-  "extra": {},
-  "version": 0.4
+  [
+   4,
+   4,
+   0,
+   5,
+   4,
+   "IMAGE"
+  ],
+  [
+   5,
+   5,
+   0,
+   6,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   7,
+   6,
+   0,
+   7,
+   0,
+   "LATENT"
+  ],
+  [
+   8,
+   7,
+   0,
+   8,
+   0,
+   "IMAGE"
+  ],
+  [
+   9,
+   5,
+   1,
+   6,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   10,
+   5,
+   2,
+   6,
+   3,
+   "LATENT"
+  ],
+  [
+   11,
+   3,
+   0,
+   5,
+   3,
+   "VAE"
+  ],
+  [
+   20,
+   13,
+   0,
+   5,
+   1,
+   "STRING"
+  ],
+  [
+   22,
+   14,
+   0,
+   6,
+   0,
+   "MODEL"
+  ],
+  [
+   23,
+   13,
+   1,
+   5,
+   2,
+   "STRING"
+  ],
+  [
+   21,
+   1,
+   0,
+   16,
+   0,
+   "MODEL"
+  ],
+  [
+   24,
+   16,
+   0,
+   14,
+   0,
+   "MODEL"
+  ]
+ ],
+ "config": {},
+ "extra": {},
+ "version": 0.4
 }

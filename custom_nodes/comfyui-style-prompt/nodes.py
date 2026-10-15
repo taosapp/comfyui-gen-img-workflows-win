@@ -19,15 +19,20 @@
     负向提示词，从节点第二个输出送出；之前的所有内容仍是正向提示词。
     没写分隔符的文件，负向输出为空串。
 
-分工（2026-09-29 定稿）：
+分工（2026-09-29 定稿，2026-10-15 负向框已删除）：
     风格库 .txt = 这类需求的**通用规则**（怎么写、修到什么程度、不许改什么）；
-    节点上的「describe / avoid」文本框 = **这一张照片的个体信息**（人物、人数、
-    年龄、年代、服饰……），分别追加到库正向/负向之后。改通用规则改文件，
+    节点上的「describe」文本框 = **这一张照片的个体信息**（人物、人数、
+    年龄、年代、服饰……），追加到库正向之后。改通用规则改文件，
     改单张照片的信息改界面，两边都不用动另一处。
 
+    负向已移除（2026-10-15）：极速档 cfg 1.0 下负向不参与采样计算
+    （comfy/samplers.py:610 把 uncond_ 置 None），留着控件只会让人以为
+    「写进去就能去掉东西」。要去掉什么，直接写进 describe。
+    风格文件里的 ---负向--- 段不再送出（保留解析，避免历史文件报错）。
+
 自定义模式（2026-10-12 新增）：
-    下拉里的第一项「自定义（只用下面两个框）」不读风格库，两个文本框的内容
-    原样作为最终正向 / 负向提示词送出（前面不加任何库内容、不做任何拼接）。
+    下拉里的第一项「自定义（只用下面这个框）」不读风格库，describe 框的内容
+    原样作为最终正向提示词送出（前面不加任何库内容、不做任何拼接）。
     适合「这一次就是要手写完整提示词」的场合——不用为了跑一次而去建一个风格文件。
 """
 
@@ -48,7 +53,7 @@ STYLE_DIR = os.environ.get("COMFYUI_STYLE_DIR") or os.path.join(_comfy_root(), "
 STYLE_EXTS = (".txt", ".md", ".prompt")
 # 下拉里的第一项：不读风格库，两个文本框原样当正/负向提示词用。
 # 名字会出现在下拉框里，改这里即可（不要与风格库文件名重名）。
-CUSTOM_STYLE = "自定义（只用下面两个框）"
+CUSTOM_STYLE = "自定义（只用下面这个框）"
 _ORDER_PREFIX = re.compile(r"^\s*\d+\s*[-_.、)）．\s]*\s*")
 _ILLEGAL = re.compile(r'[\\/:*?"<>|\r\n\t]+')
 
@@ -138,28 +143,26 @@ def library_stamp():
 
 
 class StylePromptSelector:
-    """下拉选风格（通用规则）+ 本图描述/避免（个体信息）→ 输出完整正向/负向提示词。"""
+    """下拉选风格（通用规则）+ 本图描述（个体信息）→ 输出正向提示词。
+
+    负向口恒为空：极速档 cfg 1.0 下负向不参与采样计算（comfy/samplers.py:610），
+    保留控件只会误导。所有约束写进 describe。
+    """
 
     @classmethod
     def INPUT_TYPES(cls):
         names = [CUSTOM_STYLE] + (list(load_styles()) or ["(风格库为空)"])
         return {
             "required": {
-                "style": (names, {"tooltip": "第一项「自定义」= 不用风格库，下面两个框就是完整的正向/负向提示词；"
+                "style": (names, {"tooltip": "第一项「自定义」= 不用风格库，下面这个框就是完整的正向提示词；"
                                            "其余来自 ComfyUI\\styles 里的 *.txt，文件名即风格名"}),
                 "describe": ("STRING", {
                     "multiline": True,
                     "dynamicPrompts": False,
                     "default": "",
                     "tooltip": "选「自定义」时：这里就是**完整的正向提示词**（前面不会再加任何内容）；"
-                               "选风格库风格时：这一张照片的情况（人物、人数、年龄、年代、服饰……）追加在风格正向后",
-                }),
-                "avoid": ("STRING", {
-                    "multiline": True,
-                    "dynamicPrompts": False,
-                    "default": "",
-                    "tooltip": "选「自定义」时：这里就是**完整的负向提示词**；"
-                               "选风格库风格时：这一张要避免的内容，追加在风格负向后。留空 = 不加负向",
+                               "选风格库风格时：这一张照片的情况（人物、人数、年龄、年代、服饰……）追加在风格正向后。"
+                               "要去掉什么也写在这里——负向不参与计算。",
                 }),
             }
         }
@@ -169,17 +172,15 @@ class StylePromptSelector:
     FUNCTION = "select"
     CATEGORY = "style"
 
-    def select(self, style, describe, avoid):
+    def select(self, style, describe):
         extra_pos = (describe or "").strip()
-        extra_neg = (avoid or "").strip()
 
-        # 自定义模式：两个文本框就是最终提示词，不读库、不拼接。
+        # 自定义模式：文本框就是最终提示词，不读库、不拼接。
         if style == CUSTOM_STYLE:
-            LOG.info("[style-prompt] 自定义模式：正向 %d 字符 / 负向 %d 字符（不读风格库）",
-                     len(extra_pos), len(extra_neg))
+            LOG.info("[style-prompt] 自定义模式：正向 %d 字符（不读风格库）", len(extra_pos))
             if not extra_pos:
                 LOG.warning("[style-prompt] 自定义模式下正向提示词为空，模型会自由发挥")
-            return (extra_pos, extra_neg)
+            return (extra_pos, "")
 
         styles = load_styles()
         lib_pos, lib_neg = styles.get(style, ("", ""))
@@ -192,17 +193,16 @@ class StylePromptSelector:
             LOG.warning("[style-prompt] 风格库为空：%s", STYLE_DIR)
 
         pos = "\n".join(t for t in (lib_pos, extra_pos) if t)
-        neg = "\n".join(t for t in (lib_neg, extra_neg) if t)
 
-        LOG.info("[style-prompt] 风格「%s」→ 正向 = 库 %d 字符 + 本图 %d 字符；负向 = 库 %d 字符 + 本图 %d 字符",
-                 style, len(lib_pos), len(extra_pos), len(lib_neg), len(extra_neg))
+        LOG.info("[style-prompt] 风格「%s」→ 正向 = 库 %d 字符 + 本图 %d 字符",
+                 style, len(lib_pos), len(extra_pos))
         if not pos:
             LOG.warning("[style-prompt] 正向提示词为空（库与文本框都空）")
-        return (pos, neg)
+        return (pos, "")
 
     @classmethod
-    def IS_CHANGED(cls, style, describe, avoid):
-        return "%s|%s|%s|%s" % (library_stamp(), style, describe, avoid)
+    def IS_CHANGED(cls, style, describe):
+        return "%s|%s|%s" % (library_stamp(), style, describe)
 
 
 class StylePromptSave:

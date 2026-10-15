@@ -1,4 +1,9 @@
-Draw in a simple hand-drawn doodled style cartoon, as if sketched by a person with a black felt-tip pen. Use natural marker lines, slightly wobbly contours, subtle hand-drawn imperfections, slightly open edges, and a warm editorial doodle feeling. Avoid polished vector-clean results, avoid overly crisp digital perfection, and keep the image simple, airy, flat, and understated. Use sky blue only as the accent color.
+Black and white ink line drawing, coloring book page, simple wobbly black pen outlines on blank white paper, minimal doodle, monochrome
+
+# ===== 备用词条：行首带 # 的行会被节点剔除，不会送进模型 =====
+# 极速档（cfg 1.0）负向提示词不生效，所有约束必须写在本文件上半段（正向）里！
+# 长指令实测压不住颜色（2026-10-15 两版长提示词都翻车），本风格请保持极简
+# 线条太碎：# fewer lines, simpler shapes, bold minimal strokes
 
 ---负向---
 photorealistic, 3d render, gradient shading, heavy color, complex detailed background, text, watermark, blurry, deformed
