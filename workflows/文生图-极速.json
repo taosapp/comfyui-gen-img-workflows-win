@@ -1,0 +1,676 @@
+{
+  "last_node_id": 11,
+  "last_link_id": 11,
+  "nodes": [
+    {
+      "id": 11,
+      "type": "MarkdownNote",
+      "pos": [
+        -470,
+        0
+      ],
+      "size": [
+        420,
+        760
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "## 文生图 · 极速版（Turbo LoRA，2026-10-15 新增）\n\n**8 步 / cfg 1.0，实测 720 档约 22 秒一张**（质量档 `文生图.json` 约 205 秒，快 9 倍以上）。\n\n实测两档光影风格差别明显：**极速档的光影更自然、有电影感**（用户 2026-10-15 目视选定这档）。\n质量档更\"工整规整\"，但用户偏好极速档的质感——按审美偏好选，不按参数优劣选。\n\n| 模式 | 实测耗时 | 实测出图尺寸 |\n|---|---|---|\n| 纯文生图（不接参考图） | **22.2 秒** | 720×720 |\n| 图生图（接参考图 1024×576） | **80.5 秒** | **960×544**（跟随参考图比例） |\n\n> 接参考图会慢 3 倍多：多了一次 `vae.encode` + 视觉塔要过整张图。\n> 草稿试词建议不接图，确定构图后再接。\n\n### ⭐ 参考图：接不接都行（同一个工作流两种模式）\n\n**这是本工作流的核心：④ 号参考图的连线，决定它是文生图还是图生图。**\n\n| ④ 参考图 | 出图尺寸（resolution=720 时） | 效果 |\n|---|---|---|\n| **线接着**（默认，有图） | **960×544**（跟随参考图比例） | 图生图：参考图参与构图与光影 |\n| **选中 ④ 按 `M` 静音该节点** | **720×720** 正方形 | 纯文生图：只有文字提示词 |\n\n> 💡 切换方法：点一下 ④ 号节点让它变成**红色/虚线**（或选中按 `M`），\n> 这根线就断了 → 纯文生图。再点一下恢复 → 图生图。**不用删线、不用重搭。**\n\n原理在源码 `comfy_extras/nodes_qwen.py:TextEncodeQwenImage21.execute`：\n```python\nimages = images or {}\nfor name in sorted(images, ...):\n    if image is None: continue          # 没接图直接跳过\nkeep_vision = len(ref_latents) == 0     # 决定是否保留视觉 token\n```\n**「可不上传」是编码器的原生能力**，所以不需要任何额外节点或开关——\n这也是为什么这个工作流不像别的要拖一个 BooleanSelector。\n\n### 接线说明\n\n```\n① UnetLoaderGGUF → ⑯ Turbo LoRA → ⑭ KV 缓存 → ⑥ KSampler.model\n② CLIPLoader ─┐\n④ 参考图 ──────┼→ ⑦ 编码器 → ⑥ KSampler.positive / .negative / .latent_image\n③ VAELoader ──┘（有参考图时必须要，编码器用它做 vae.encode）\n④ 分辨率下拉 → ⑤ 转 INT → ⑦ 编码器.resolution\n```\n\n**注意**：本工作流多接了 `③ VAELoader → 编码器.vae`。文生图那版没接（纯文生图不需要），\n但一旦接了参考图就必须接——否则参考图只进视觉塔、不进潜空间，图生图会失效。\n\n### ⚠️ 本档 cfg = 1.0：负向提示词不参与计算\n\n`comfy/samplers.py:610`：cfg = 1.0 时负向条件被置 None，UNet 只算正向。\n**要去掉什么、想强调什么，全部写进正向 prompt。**（已在 ⑦ 编码器的负向口保留输入，\n但填了也不生效，只是留着方便切回质量档时用。）\n\n### 采样参数（⑥ KSampler）\n\n| 项 | 值 | 说明 |\n|---|---|---|\n| steps | **8** | Turbo 蒸馏档，不要改高（改高反而可能劣化） |\n| cfg | **1.0** | 见上，改高会失去极速且未必更准 |\n| sampler / scheduler | euler / beta | 与质量档一致 |\n| denoise | 1.0 | 参考图模式下也别调，改了会偏离原图结构 |\n\n### 许可\n\n⑯ 用的 Turbo LoRA 是 **Qwen Research License，仅限非商业用途**。\n要商用/正式交付请用 `文生图.json`（质量档）或 `中国彩墨图生图.json`。\n\n### 三档分辨率\n\n沿用质量档的下拉：512（草稿）/ **720（默认）**/ 1024（最慢）。\n**接了参考图时 `resolution` 仍然生效**，但出图比例跟随参考图（不是正方形）。\n"
+      ],
+      "title": "ⓘ 用法速查（极速版 / 参考图可接可不接）"
+    },
+    {
+      "id": 1,
+      "type": "UnetLoaderGGUF",
+      "title": "① 主模型（GGUF Q5_K_M）",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        330,
+        58
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UnetLoaderGGUF"
+      },
+      "widgets_values": [
+        "qwen-image-2.1-Q5_K_M.gguf"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "CLIPLoader",
+      "title": "② 文本编码器（int8 Qwen3-VL-8B）",
+      "pos": [
+        0,
+        140
+      ],
+      "size": [
+        330,
+        82
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_8b_int8_convrot.safetensors",
+        "qwen_image",
+        "default"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "VAELoader",
+      "title": "③ VAE",
+      "pos": [
+        0,
+        320
+      ],
+      "size": [
+        330,
+        58
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            4
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "qwen_image_2.1_vae_bf16.safetensors"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "CustomCombo",
+      "title": "④ 分辨率档位：低 512 / 中 720 / 高 1024",
+      "pos": [
+        0,
+        450
+      ],
+      "size": [
+        330,
+        130
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            5
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "INDEX",
+          "type": "INT",
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CustomCombo"
+      },
+      "widgets_values": [
+        "720",
+        1,
+        "512",
+        "720",
+        "1024",
+        ""
+      ]
+    },
+    {
+      "id": 5,
+      "type": "ComfyNumberConvert",
+      "title": "⑤ 档位 → 像素数",
+      "pos": [
+        0,
+        650
+      ],
+      "size": [
+        330,
+        100
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "value",
+          "type": "INT,FLOAT,STRING,BOOLEAN",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": null,
+          "slot_index": 0
+        },
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            6
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ComfyNumberConvert"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 6,
+      "type": "QwenImage21Cache",
+      "title": "KV 缓存加速（勿删）",
+      "pos": [
+        420,
+        0
+      ],
+      "size": [
+        400,
+        110
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QwenImage21Cache"
+      },
+      "widgets_values": [
+        "auto",
+        "default"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "TextEncodeQwenImage21",
+      "title": "⑥ 提示词 + 分辨率 → 条件与空 latent",
+      "pos": [
+        420,
+        180
+      ],
+      "size": [
+        400,
+        260
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 3
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 22
+        },
+        {
+          "name": "resolution",
+          "type": "INT",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": 6
+        },
+        {
+          "name": "images.image_1",
+          "type": "IMAGE",
+          "link": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "links": [
+            8
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            9
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "TextEncodeQwenImage21"
+      },
+      "widgets_values": [
+        "",
+        "",
+        720
+      ]
+    },
+    {
+      "id": 8,
+      "type": "KSampler",
+      "title": "⑦ 采样",
+      "pos": [
+        900,
+        180
+      ],
+      "size": [
+        315,
+        262
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 2
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 7
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 8
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            10
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        42,
+        "randomize",
+        8,
+        1.0,
+        "euler",
+        "beta",
+        1.0
+      ]
+    },
+    {
+      "id": 9,
+      "type": "VAEDecode",
+      "title": "⑧ 解码",
+      "pos": [
+        900,
+        520
+      ],
+      "size": [
+        315,
+        46
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 10
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            11
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 10,
+      "type": "SaveImage",
+      "title": "保存到 output/文生图/",
+      "pos": [
+        3010,
+        450
+      ],
+      "size": [
+        315,
+        270
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 11
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "文生图/极速"
+      ]
+    },
+    {
+      "id": 16,
+      "type": "LoraLoaderBypassModelOnly",
+      "pos": [
+        40,
+        -320
+      ],
+      "size": [
+        340,
+        130
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 20
+        },
+        {
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          },
+          "link": null
+        },
+        {
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          },
+          "input": {
+            "name": "strength_model"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            21
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-lora-loader",
+        "ver": "1.0.0"
+      },
+      "widgets_values": [
+        "qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors",
+        1.0
+      ],
+      "title": "⑯ 极速档 Turbo LoRA（Ctrl+B 绕过 = 回到质量档）"
+    },
+    {
+      "id": 17,
+      "type": "LoadImage",
+      "pos": [
+        -260,
+        240
+      ],
+      "size": [
+        340,
+        320
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            23
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui",
+        "ver": "0.3.4"
+      },
+      "widgets_values": [
+        "ref_test_scene.png",
+        "image"
+      ],
+      "title": "④ 参考图（可选）·不接这根线 = 纯文生图 · 接线 = 图生图"
+    }
+  ],
+  "links": [
+    [
+      2,
+      6,
+      0,
+      8,
+      0,
+      "MODEL"
+    ],
+    [
+      3,
+      2,
+      0,
+      7,
+      0,
+      "CLIP"
+    ],
+    [
+      4,
+      3,
+      0,
+      9,
+      1,
+      "VAE"
+    ],
+    [
+      5,
+      4,
+      0,
+      5,
+      0,
+      "STRING"
+    ],
+    [
+      6,
+      5,
+      1,
+      7,
+      2,
+      "INT"
+    ],
+    [
+      7,
+      7,
+      0,
+      8,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      8,
+      7,
+      1,
+      8,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      9,
+      7,
+      2,
+      8,
+      3,
+      "LATENT"
+    ],
+    [
+      10,
+      8,
+      0,
+      9,
+      0,
+      "LATENT"
+    ],
+    [
+      11,
+      9,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      20,
+      1,
+      0,
+      16,
+      0,
+      "MODEL"
+    ],
+    [
+      21,
+      16,
+      0,
+      6,
+      0,
+      "MODEL"
+    ],
+    [
+      22,
+      3,
+      0,
+      7,
+      1,
+      "VAE"
+    ],
+    [
+      23,
+      17,
+      0,
+      7,
+      3,
+      "IMAGE"
+    ]
+  ],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}
