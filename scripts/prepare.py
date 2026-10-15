@@ -5,7 +5,6 @@
     python scripts/prepare.py            # 完整准备（缺什么补什么，大模型下载前会询问）
     python scripts/prepare.py --check    # 只检查不安装/不下载
     python scripts/prepare.py --yes      # 下载模型不再逐个询问
-    python scripts/prepare.py --with-video  # 连 MiniMax-H3 视频工作流的约 27GB 模型一起准备
 
 它做五件事：
   1. 运行环境：优先找/建 conda 环境 comfyui（python 3.12），没有 conda 就退而建项目内 .venv；
@@ -33,7 +32,7 @@ GGUF_URL = "https://github.com/city96/ComfyUI-GGUF"
 UPSTREAM = "https://github.com/comfyanonymous/ComfyUI"
 
 # ---- 模型清单（文件名必须与工作流加载器里的一致，一字不差）-----------------
-# video=True 的是 MiniMax-H3 视频工作流专用，默认跳过，--with-video 时才处理。
+# 只列图片工作流需要的模型；视频（MiniMax-H3）相关已于 2026-10-15 从本仓库移除。
 # url=None 的条目无法自动下载，脚本会给出获取指引。
 MODELS = [
     # -- Qwen-Image-2.1 文生图 / 图片风格转换 --
@@ -55,19 +54,12 @@ MODELS = [
     # -- BiRefNet 抠图 --
     dict(path="models/background_removal/birefnet.safetensors", size="0.5G",
          url=HF_MIRROR + "/Comfy-Org/BiRefNet/resolve/main/background_removal/birefnet.safetensors"),
-    # -- MiniMax-H3 图生视频（可选）--
-    dict(path="models/unet/MiniMax-H3-FL2VA-Pruned-Q3_K_M.gguf", size="8.3G",
-         url=None, video=True,
-         note="Comfy-Org 未发同名 GGUF；等效替代：unsloth/MiniMax-H3-GGUF 的 "
-              "minimax_h3_fl2va_pruned-Q3_K.gguf，下载后改成上面的文件名"),
-    dict(path="models/text_encoders/qwen3vl_32b_minimax_h3-Q4_K_M.gguf", size="14G", video=True,
-         url=HF_MIRROR + "/unsloth/MiniMax-H3-GGUF/resolve/main/qwen3vl_32b_minimax_h3-Q4_K_M.gguf"),
-    dict(path="models/loras/minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors", size="1.9G", video=True,
-         url=HF_MIRROR + "/Comfy-Org/MiniMax-H3/resolve/main/loras/minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors"),
-    dict(path="models/vae/minimax_h3_video_vae_int8_convrot.safetensors", size="2.7G", video=True,
-         url=HF_MIRROR + "/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_int8_convrot.safetensors"),
-    dict(path="models/vae/minimax_h3_audio_vae_fp32.safetensors", size="0.6G", video=True,
-         url=HF_MIRROR + "/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors"),
+    # -- Turbo 蒸馏 LoRA：彩墨极速版 / 图片风格转换极速版**必需**（缺它这两个工作流跑不了）--
+    # 上游 Viggle/Qwen-Image-2.1-viggle-turbo（Qwen Research License，非商用）；
+    # 本机已核对 SHA256 = 2bbf5b6c91d19ecb568a63d61ac490aa679a6a7bef14a68291abd386c0d4f77f
+    dict(path="models/loras/qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors", size="0.9G",
+         url=HF_MIRROR + "/t8star/Zen-Image-Edit-Comfy/resolve/main/viggle-v0.2.1/"
+                         "qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors"),
 ]
 
 ok = lambda s: print("  [OK]", s)
@@ -194,11 +186,9 @@ def human(n):
     return "%.1fGB" % (n / 1024**3)
 
 
-def check_models(with_video):
+def check_models():
     missing = []
     for m in MODELS:
-        if m.get("video") and not with_video:
-            continue
         p = ROOT / m["path"]
         if p.exists() and p.stat().st_size > 1024 * 1024:
             ok("%s (%s)" % (m["path"], human(p.stat().st_size)))
@@ -233,7 +223,6 @@ def main():
     ap = argparse.ArgumentParser(description="ComfyUI 工作流仓库一键准备")
     ap.add_argument("--check", action="store_true", help="只检查，不安装不下载")
     ap.add_argument("--yes", action="store_true", help="下载模型不询问")
-    ap.add_argument("--with-video", action="store_true", help="连 MiniMax-H3 视频模型（约 27GB）一起准备")
     ap.add_argument("--skip-models", action="store_true", help="跳过模型检查/下载")
     args = ap.parse_args()
 
@@ -260,11 +249,11 @@ def main():
         setup_gguf()
 
     print("== 5/5 模型 ==")
-    missing = check_models(args.with_video)
+    missing = check_models()
     if missing and not args.check and not args.skip_models:
         for m in missing:
             download(m, args.yes)
-        missing = check_models(args.with_video)
+        missing = check_models()
 
     print("== 完成 ==")
     if platform.system() == "Windows":
