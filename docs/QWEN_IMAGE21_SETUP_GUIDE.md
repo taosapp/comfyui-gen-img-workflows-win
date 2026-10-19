@@ -14,18 +14,18 @@
 
 ### 1. 环境设置
 - Conda 环境: `comfyui` (Python 3.12)
-- ComfyUI 安装位置: `D:\ai\comfyui-img2img-workflows-nvidia-windows`
+- ComfyUI 安装位置: `D:\ai\comfyui-gen-img-workflows-win`
 - PyTorch: 2.6.0+cu124
 - ComfyUI-GGUF 自定义节点: 已安装
 
 ### 2. 模型文件
 下载完成后，文件位置：
-- **GGUF 模型**: `D:\ai\comfyui-img2img-workflows-nvidia-windows\models\diffusion_models\qwen-image-2.1-Q5_K_M.gguf` (约 5GB)
-- **文本编码器**: `D:\ai\comfyui-img2img-workflows-nvidia-windows\models\text_encoders\qwen3vl_8b_int8_convrot.safetensors` (约 8.9GB)
-- **VAE**: `D:\ai\comfyui-img2img-workflows-nvidia-windows\models\vae\qwen_image_2.1_vae_bf16.safetensors` (645MB)
+- **GGUF 模型**: `D:\ai\comfyui-gen-img-workflows-win\models\diffusion_models\qwen-image-2.1-Q5_K_M.gguf` (约 5GB)
+- **文本编码器**: `D:\ai\comfyui-gen-img-workflows-win\models\text_encoders\qwen3vl_8b_int8_convrot.safetensors` (约 8.9GB)
+- **VAE**: `D:\ai\comfyui-gen-img-workflows-win\models\vae\qwen_image_2.1_vae_bf16.safetensors` (645MB)
 
 ### 3. 启动方式
-双击运行: `D:\ai\comfyui-img2img-workflows-nvidia-windows\start_comfyui.bat`
+双击运行: `D:\ai\comfyui-gen-img-workflows-win\start_comfyui.bat`
 
 启动后访问: http://127.0.0.1:8188
 
@@ -92,7 +92,7 @@ SaveImage → 保存输出
 ### Q: 下载中断怎么办？
 A: 重新运行下载命令，curl 会断点续传：
 ```bash
-cd /d/ai/comfyui-img2img-workflows-nvidia-windows/models/diffusion_models
+cd /d/ai/comfyui-gen-img-workflows-win/models/diffusion_models
 curl -L -C - -o qwen-image-2.1-Q5_K_M.gguf "https://hf-mirror.com/abenzerps/Qwen-Image-2.1-GGUF/resolve/main/qwen-image-2.1-Q5_K_M.gguf"
 ```
 
@@ -120,15 +120,15 @@ A: 可以，修改 `UnetLoaderGGUF` 节点的模型名称：
 export HF_ENDPOINT=https://hf-mirror.com
 
 # 下载 GGUF 模型（Q5_K_M，推荐 12GB 显存）
-cd /d/ai/comfyui-img2img-workflows-nvidia-windows/models/diffusion_models
+cd /d/ai/comfyui-gen-img-workflows-win/models/diffusion_models
 curl -L -o qwen-image-2.1-Q5_K_M.gguf "https://hf-mirror.com/abenzerps/Qwen-Image-2.1-GGUF/resolve/main/qwen-image-2.1-Q5_K_M.gguf"
 
 # 下载文本编码器（int8 量化）
-cd /d/ai/comfyui-img2img-workflows-nvidia-windows/models/text_encoders
+cd /d/ai/comfyui-gen-img-workflows-win/models/text_encoders
 curl -L -o qwen3vl_8b_int8_convrot.safetensors "https://hf-mirror.com/abenzerps/Qwen-Image-2.1-GGUF/resolve/main/text_encoders/qwen3vl_8b_int8_convrot.safetensors"
 
 # VAE 已下载完成
-# /d/ai/comfyui-img2img-workflows-nvidia-windows/models/vae/qwen_image_2.1_vae_bf16.safetensors
+# /d/ai/comfyui-gen-img-workflows-win/models/vae/qwen_image_2.1_vae_bf16.safetensors
 ```
 
 ## 更新与维护
@@ -139,7 +139,7 @@ curl -L -o qwen3vl_8b_int8_convrot.safetensors "https://hf-mirror.com/abenzerps/
 
 ### 更新自定义节点
 ```bash
-cd /d/ai/comfyui-img2img-workflows-nvidia-windows/custom_nodes/ComfyUI-GGUF
+cd /d/ai/comfyui-gen-img-workflows-win/custom_nodes/ComfyUI-GGUF
 git pull
 ```
 

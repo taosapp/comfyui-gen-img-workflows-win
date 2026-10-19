@@ -15,7 +15,7 @@ import sys
 import numpy as np
 from PIL import Image
 
-ORIG = r"D:\ai\comfyui-img2img-workflows-nvidia-windows\input\5.jpg"
+ORIG = r"D:\ai\comfyui-gen-img-workflows-win\input\5.jpg"
 
 
 def gray64(path):

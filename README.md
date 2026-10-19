@@ -88,8 +88,8 @@
 运行时、依赖、模型都不在仓库里。用任意 Python 3.9+ 跑一次准备脚本即可补齐：
 
 ```bash
-git clone https://github.com/taosapp/comfyui-img2img-workflows-nvidia-windows.git
-cd comfyui-img2img-workflows-nvidia-windows
+git clone https://github.com/taosapp/comfyui-gen-img-workflows-win.git
+cd comfyui-gen-img-workflows-win
 python scripts/prepare.py                # 全自动：环境 + 运行时 + 依赖 + 节点补丁 + 模型下载
 python scripts/prepare.py --check        # 或先只做检查，缺什么会列出来
 ```
