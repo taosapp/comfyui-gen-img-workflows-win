@@ -19,6 +19,12 @@
 > 全部内容在 RTX 3060 12GB + 32GB 内存、Windows、`--lowvram` 启动下实测通过；
 > 8GB 显存 / 16GB 内存的机器也能跑图片工作流（见下方「硬件要求」）。
 
+> 📊 **姊妹项目** [`sd-gen-img-win`](https://github.com/taosapp/sd-gen-img-win)（SD 系模型、
+> diffusers 直调，512×512亚秒级出图，带 HTTP 接口可编程）与本项目在同一台机器上的横向对比见
+> **[《与 ComfyUI 工作流集（Qwen-Image）的横向对比》](https://github.com/taosapp/sd-gen-img-win/blob/main/docs/comparison-vs-comfyui.md)**。
+> 简单说：**要批量出草稿 / 把生图接进脚本或服务选它；要在图上写中文文字、要抠图 / 分层图 /
+> 彩墨风格库选本项目。** 两套不是替代关系，推荐「先用它挑出候选、再用本项目出终稿」的组合用法。
+
 ## 工作流简介
 
 ### 图片风格转换
