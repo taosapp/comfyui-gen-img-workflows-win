@@ -1,12 +1,15 @@
-masterpiece, best quality, ultra-detailed, 8k resolution, high definition, sharp focus, clear details, photorealistic, raw photo, DSLR, high resolution, crisp.
+high definition, sharp focus, clear detail, photorealistic, raw photo, DSLR, crisp
 
-Enhance this photograph to high definition: sharpen focus, recover fine details and textures, remove noise and compression artifacts. Keep the original scene, people, faces, composition and colors exactly the same.
+Enhance this photograph to high definition: sharpen focus, recover fine detail and texture, remove noise and compression artifacts. It stays a photograph — the original scene, the people and their facial identity, the framing and the colors remain unchanged, and nothing is added or removed. The existing lighting, its direction and the shadows it casts stay exactly as captured: do not relight, do not add fill light, do not change the time of day.
 
 # ===== 以下是「备用词条」：行首带 # 的行会被节点自动剔除，不会送进模型 =====
 # 启用某行 → 删掉行首的 #；临时停用某段词 → 单独放一行、行首加 # 即可。
 # 只有行首（前面可留空格）的 # 或 // 才是注释；行中间的 # 会被保留，
 # 这样 #ff0000 这类色值不会被打断。/* ... */ 也可跨行注释。
 # 注意：anime / illustration 这类 Danbooru 词会把结果拉向插画域，做照片增强时别启用。
+# 同理，masterpiece / best quality / 8k / ultra-detailed 这类空泛画质词已全部删掉
+# （2026-10-29，依官方 Qwen-Image-2.1 提示词规范）：它们不提供可执行的视觉信息，
+# 只会把结果推离照片域，想提升清晰度请写具体的光学/材质描述。别再加回去。
 
 # text clarity, sharp text, clean lines, high contrast, legible, no blur
 # anime wallpaper, vibrant colors, clean lines, sharp edges, detailed illustration

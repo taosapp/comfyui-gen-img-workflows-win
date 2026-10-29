@@ -1,12 +1,15 @@
-watercolor painting, luminous translucent washes, bright cheerful palette, high key, airy light, clean white paper showing through, vibrant yet natural colors taken from the original photo, soft wet-on-wet edges, delicate pigment granulation, visible brush strokes, masterpiece, best quality, high resolution
+watercolor painting, luminous translucent washes, bright cheerful palette, high key, airy light, clean white paper showing through, vibrant yet natural colors taken from the original photo, soft wet-on-wet edges, delicate pigment granulation, visible brush strokes
 
-Transform this photo into a bright, airy watercolor painting: keep the original colors, subject and composition exactly the same, but render everything with light translucent pigment and plenty of clean white paper. Use thin light washes instead of heavy shading — let the paper supply the highlights. Keep the overall tone bright, fresh and colorful, never dark, dull or muddy.
+Transform this photo into a bright, airy watercolor painting: keep the original subject, where it sits in the frame, and the overall composition unchanged — change only the medium. Render everything with light translucent pigment and plenty of clean white paper, using thin light washes instead of heavy shading. The light falls from the same direction as in the photograph and is carried by reserved white paper rather than by glare; shadows are laid in as a single cool transparent wash rather than as dark paint. Keep the overall tone bright, fresh and colorful, never dark, dull or muddy.
 
 # ===== 备用词条：行首带 # 的行会被节点剔除，不会送进模型 =====
 # 想要更「淡彩速写」：# loose sketchy watercolor, minimal washes, lots of white space
 # 想要更「饱和插画」：# vivid gouache-like watercolor, saturated pigment, bold flat washes
 # 想要保留更多原图细节：把工作流 KSampler 的 denoise 从 1.0 降到 0.6~0.75
 # 旧版提示词里的 muted / deep shadows 是偏暗的元凶，已移除，别加回来。
+# masterpiece / best quality / high resolution 也已删（2026-10-29，依官方 Qwen-Image-2.1
+# 提示词规范）：空泛画质词不提供可执行的视觉信息，还会把水彩推成插画/动漫风。
+# 想要更好看，往「材质与光学」上加（纸纹、颜料颗粒、湿画法边缘），别堆形容词。
 
 ---负向---
 dark, gloomy, murky, muddy tones, heavy shadows, deep shadows, underexposed, low key lighting, dull, desaturated, grey, dirty brown, over-darkened, blurry, low quality, text, watermark

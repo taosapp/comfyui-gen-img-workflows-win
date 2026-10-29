@@ -30,16 +30,33 @@
   会跟着工作流一起保存。换照片只改这两个框，不用动本文件。
   各风格文件里留了可整段复制的示例（在 # 注释里）。
 
-写法建议（2026-09-28 实测）：
+写法建议（2026-09-28 实测，2026-10-29 按官方规范修订）：
   本工作流用的是「编辑类」模型（Qwen-Image 图生图），它对**指令式句子**的响应
-  明显好于单纯的 tags 堆叠。两种写法可以并存，推荐结构：
+  明显好于单纯的 tags 堆叠。推荐结构：
 
-    <tags 段：描述质感/画质>  masterpiece, best quality, 8k, sharp focus, photorealistic ...
-    <指令段：说清「做什么 + 不许改什么」>  Enhance this photograph to high definition: ...
-                                          Keep the original scene, people, faces,
-                                          composition and colors exactly the same.
+    <tags 段：描述质感/光学>  high definition, sharp focus, clear detail,
+                              photorealistic, raw photo, DSLR, crisp
+    <指令段：说清「做什么 + 锁住什么」>  Enhance this photograph to high definition: ...
+                                        It stays a photograph — the original scene,
+                                        the people and their facial identity ...
 
   只写 tags 不说「做什么」，模型容易自由发挥（4.png 实测过：少了指令段，画质提升
-  有限）；只写指令不加画质 tags，质感会偏软。两句一起写效果最好，见 03-hd_img.txt。
-  做「照片增强/修复」类风格时，别启用 anime / illustration / watercolor 这类
+  有限）；只写指令不加质感 tags，质感会偏软。两句一起写效果最好，见 03-hd_img.txt。
+
+  ⚠️ tags 段**不要**写 masterpiece / best quality / 8k / 4K / highly detailed /
+  ultra-detailed。阿里官方 Qwen-Image-2.1 提示词规范明确禁用这类空泛画质词：
+  它们不提供任何可执行的视觉信息，只会把结果往插画/动漫域拉。想提升清晰度，
+  写具体的光学与材质描述（sharp focus、visible brush strokes、paper fibre）。
+  `python scripts/check_prompts.py` 会扫描并报出这类词。
+
+  ⚠️ 画幅比例与分辨率不要写进提示词正文，交给画布节点。写「9:16」「4K」
+  不会真的改变出图尺寸，只会干扰模型。
+
+  ⚠️ 做「照片增强/修复」类风格时，别启用 anime / illustration / watercolor 这类
   会把结果拉向插画域的词（否则真人照片会被二次元化）。
+
+想从零写一条新提示词：
+  参考 `_槽位模板.txt`（同样以下划线开头，不出现在下拉框里）。里面有三套填槽骨架
+  —— 文生图 / 照片风格化 / 照片增强 —— 按官方规范压缩而成，〈 〉里填空即可。
+  核心四条：保真只点名位置与角色、不描述外观；光照单独成句；不堆空泛画质词；
+  一次只改一个维度。
