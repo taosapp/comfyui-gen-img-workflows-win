@@ -54,7 +54,7 @@ MODELS = [
     # -- BiRefNet 抠图 --
     dict(path="models/background_removal/birefnet.safetensors", size="0.5G",
          url=HF_MIRROR + "/Comfy-Org/BiRefNet/resolve/main/background_removal/birefnet.safetensors"),
-    # -- Turbo 蒸馏 LoRA：彩墨极速版 / 图片风格转换极速版**必需**（缺它这两个工作流跑不了）--
+    # -- Turbo 蒸馏 LoRA：图片风格转换 / 文生图 / 彩墨**全都需要**（缺它这三个工作流跑不了）--
     # 上游 Viggle/Qwen-Image-2.1-viggle-turbo（Qwen Research License，非商用）；
     # 本机已核对 SHA256 = 2bbf5b6c91d19ecb568a63d61ac490aa679a6a7bef14a68291abd386c0d4f77f
     dict(path="models/loras/qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors", size="0.9G",

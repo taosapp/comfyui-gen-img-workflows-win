@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""把 workflows/图片风格转换.json 精简为纯极速版（2026-10-15）。
+"""生成 workflows/图片风格转换.json 的便签内容。
 
 改动：
   1. ⑬ StylePromptSelector 保持默认「水彩画」不变；
   2. ④ LoadImage 默认照片换成 6.png（当前在用的参考图）；
-  3. ⑱ 便签整体重写：删除双档位/Ctrl+B/质量档内容，只保留极速版说明，
-     并写明 cfg 1.0 下负向不生效、约束必须写进正向。
+  3. ⑱ 便签整体重写，写明 cfg 1.0 下负向不生效、约束必须写进正向。
 
-幂等：重复运行结果一致。不改动任何节点/连线（极速版 11 个节点本来就是一个整体）。
+幂等：重复运行结果一致。不改动任何节点/连线。
 """
 import json
 import os
@@ -19,9 +18,9 @@ WF = os.path.join(ROOT, "workflows", "图片风格转换.json")
 # 默认出图分辨率：日常以快为先，512 约 20 秒。大图按需手动往上调（见便签表格）。
 RESOLUTION = 512
 
-NOTE = """<!-- 由 scripts/make_style_fast_only.py 生成（2026-10-15 精简为纯极速版） -->
+NOTE = """<!-- 由 scripts/make_style_fast_only.py 生成 -->
 
-## 图片风格转换（极速版 · Qwen-Image-2.1 GGUF + Turbo LoRA）
+## 图片风格转换（Qwen-Image-2.1 GGUF + Turbo LoRA）
 
 **参考照片 + 风格提示词 → 新图**。画布尺寸 = 参考图按 ⑤ 的 `resolution`
 缩放后的尺寸（换照片不用手改宽高）。
@@ -52,7 +51,7 @@ LoRA 加载/模型修补是一次性开销，之后一直快）。
 - **想约束画面必须写进 `describe`**——要去掉什么就写「去掉 X」。
   `02-简笔画` 就是范例：「黑白线稿 / 无填充 / 无阴影」全部写在正向；
 - 长指令反而压不住，保持极简；
-- 确需负向生效请用 `中国彩墨图生图.json`（质量版，26 步 / cfg 3.2）的链路。
+- **本项目所有工作流都是 cfg 1.0**，没有「能激活负向」的链路可换——想压住某样东西只有一条路：写进正向。
 
 ### 加 / 改风格（都不用动工作流）
 
@@ -127,7 +126,7 @@ def main():
 
     with open(WF, "w", encoding="utf-8") as fh:
         json.dump(wf, fh, ensure_ascii=False, indent=1)
-    print("已精简: LoadImage→6.png / 便签→纯极速版 / 节点与连线未动")
+    print("已更新: LoadImage→6.png / 便签重写 / 节点与连线未动")
     return 0
 
 

@@ -1,7 +1,7 @@
 Black and white ink line drawing, coloring book page, simple wobbly black pen outlines on blank white paper, minimal doodle, monochrome
 
 # ===== 备用词条：行首带 # 的行会被节点剔除，不会送进模型 =====
-# 极速档（cfg 1.0）负向提示词不生效，所有约束必须写在本文件上半段（正向）里！
+# cfg 1.0 下负向提示词不生效，所有约束必须写在本文件上半段（正向）里！
 # 长指令实测压不住颜色（2026-10-15 两版长提示词都翻车），本风格请保持极简
 # 线条太碎：# fewer lines, simpler shapes, bold minimal strokes
 

@@ -5,16 +5,22 @@
 
 | 工作流 | 用途 | 速度（RTX 3060 12GB 实测） |
 |---|---|---|
-| `workflows/图片风格转换.json` | 通用图生图风格转换，下拉框切换风格库（水彩/简笔画/高清增强等），也可选「自定义」手写完整正/负向提示词。**纯极速版**（8 步 + Turbo LoRA / cfg 1.0） | 约 36~60 秒/张 |
+| `workflows/图片风格转换.json` | 通用图生图风格转换，下拉框切换风格库（水彩/简笔画/高清增强等），也可选「自定义」手写正向提示词 | 约 36~60 秒/张 |
 | `workflows/抠图.json` | 透明底抠图（BiRefNet 专用分割模型，不改像素） | 约 3 秒/张 |
-| `workflows/文生图.json` | Qwen-Image-2.1 文生图（GGUF + KV 缓存加速，质量档 20 步 / cfg 3.5） | 约 205 秒/张（720 档实测） |
-| `workflows/文生图-极速.json` | 同上挂 Turbo 蒸馏 LoRA（8 步 / cfg 1.0）；**参考图接线 = 图生图，静音 = 纯文生图** | 约 22 秒/张（720 纯文生图），接参考图约 80 秒 |
+| `workflows/文生图.json` | Qwen-Image-2.1 文生图（GGUF + Turbo LoRA + KV 缓存）；**参考图接线 = 图生图，静音 = 纯文生图** | 约 22 秒/张（720 纯文生图），接参考图约 80 秒 |
+| `workflows/中国彩墨图生图.json` | 中国彩墨画，文生图 / 照片转彩墨画两用（默认画布 864×1152 / 3:4，通用提示词不绑定具体照片） | 约 47 秒/张（首次约 4 分钟，含 LoRA 加载） |
 | `workflows/分层文生图.json` | Qwen-Image-Layered 一次生成分层图（文字直接生成多层，LatentCut 切层输出） | 待实测 |
-| `workflows/中国彩墨图生图.json` | 中国彩墨画，文生图 / 照片转彩墨画两用（默认画布 864×1152 / 3:4，通用提示词不绑定具体照片），质量档（26 步 / cfg 3.2） | 约 4-5 分钟/张（864 级竖幅实测） |
-| `workflows/中国彩墨图生图-极速.json` | 同上，挂 Turbo 蒸馏 LoRA（8 步 / cfg 1.0），**日常出图首选**（更快且更贴原照） | 约 47 秒/张（首次约 4 分钟，含 LoRA 加载） |
+
+除 `分层文生图` 与 `抠图` 外，其余工作流统一为 **8 步 / cfg 1.0 + Turbo 蒸馏 LoRA** 的单档配方。
 
 配套一个自建小节点包 `custom_nodes/comfyui-style-prompt/`（风格库下拉选择器 + 存回节点 + 背景填充节点），
 以及一份 ComfyUI-GGUF 补丁（见 `patches/`）。
+
+> ⚠️ **许可：本项目仅限非商用。** 所有图片工作流都依赖 Viggle Turbo 蒸馏 LoRA，
+> 其许可为 **Qwen Research License（非商用）**。商用请另行确认授权。
+>
+> 注：`cfg = 1.0` 下**负向提示词不参与采样计算**（`comfy/samplers.py:610` 把 `uncond_` 置 `None`），
+> 所以各工作流的负向框只是备查——**要去掉什么、想强调什么，全部写进正向**。
 
 > 全部内容在 RTX 3060 12GB + 32GB 内存、Windows、`--lowvram` 启动下实测通过；
 > 8GB 显存 / 16GB 内存的机器也能跑图片工作流（见下方「硬件要求」）。
@@ -30,24 +36,20 @@
 ### 图片风格转换
 `LoadImage → 风格选择器(下拉) → TextEncodeQwenImage21 → KSampler → VAEDecode → SaveImage`，
 中间串了一个 `QwenImage21Cache`（KV 缓存，同样提示词连续出图时可省 40% 时间，勿删）。
-
-**纯极速版**（2026-10-15 精简）：链路里串了 Turbo 蒸馏 LoRA（⑯），8 步 / cfg 1.0，
-实测 36~60 秒/张。工作流内不再保留质量档；确需负向提示词生效的场合，
-用 `中国彩墨图生图.json`（质量版，26 步 / cfg 3.2）的链路。
+链路里串了 Turbo 蒸馏 LoRA，8 步 / cfg 1.0，实测 36~60 秒/张。
 
 > ⚠️ cfg 1.0 下**负向提示词不参与计算**（`comfy/samplers.py:610`：cfg=1.0 时负向
 > 条件被直接置 None，UNet 只算正向——这也是速度快的原因）。想约束画面（"别上色"、
 > "别改脸"）**必须写进正向**：`02-简笔画` 即范例，黑白线稿约束全写在正向，
 > 实测 36 秒出标准线稿；长指令反而压不住颜色，风格文件请保持极简。
-> `03-hd_img` 的防改脸负向在本工作流里保护力弱。Turbo LoRA 许可为 Qwen Research
-> License（非商用）。
 
 风格 = `styles/` 目录下一个 `.txt` 文件，文件名（去掉序号）就是下拉框里的名字。
 **新增风格只要丢一个 txt 进去、浏览器 F5 即可**；改内容直接重新 Queue。
-风格文件支持 `#` 注释（详见 `styles/_说明.txt`）。
+风格文件支持 `#` 注释（详见 `styles/_说明.txt`）；从零写提示词可参考
+`styles/_槽位模板.txt` 的填槽骨架。
 
-下拉框第一项是 **「自定义（只用下面两个框）」**：不读风格库，`describe` 框 = 完整正向提示词、
-`avoid` 框 = 完整负向提示词，原样送进模型（前面不加任何库内容）。适合手写一次性提示词，
+下拉框第一项是 **「自定义（只用下面这个框）」**：不读风格库，`describe` 框 = 完整正向
+提示词，原样送进模型（前面不加任何库内容）。适合手写一次性提示词，
 不用为了跑一次而新建风格文件。
 
 > ⚠️ 工作流里的 `QwenImage21Cache` **`dtype` 必须保持 `default`**：改成实验性的 `int8`
@@ -58,30 +60,25 @@
 输出与输入同尺寸的透明 PNG。注意链路中必须过一次 `InvertMask`
 （`JoinImageWithAlpha` 内部做 `alpha = 1 - mask`），`GrowMask` 放在反相前用于去白边。
 
-### 文生图（质量版 / 极速版）
-`UnetLoaderGGUF →（仅极速档）Turbo LoRA → QwenImage21Cache → TextEncodeQwenImage21 → KSampler → SaveImage`，
-分辨率走 512 / 720 / 1024 下拉档。
+### 文生图
+`UnetLoaderGGUF → Turbo LoRA → QwenImage21Cache → TextEncodeQwenImage21 → KSampler → SaveImage`，
+分辨率走 512 / 720 / 1024 下拉档。8 步 / cfg 1.0，720 档实测 **22 秒/张**，光影比多步采样更自然。
 
-- **极速版**（8 步 / cfg 1.0）720 档实测 **22 秒/张**，且实测光影更自然；「参考图（可选）」节点
-  **线上接着就是图生图**（出图比例跟随参考图，约 80 秒），选中按 `M` 静音就回到纯文生图，不用改连线。
-  接参考图时必须保留「VAELoader → 编码器.vae」这根线，否则图生图失效。
-- **质量版**（20 步 / cfg 3.5）实测约 **205 秒/张**，留作对照与正式交付（Turbo LoRA 是
-  Qwen Research License **非商用**）。
+「参考图（可选）」节点**线上接着就是图生图**（出图比例跟随参考图，约 80 秒），
+选中按 `M` 静音就回到纯文生图，不用改连线。接参考图时必须保留
+「VAELoader → 编码器.vae」这根线，否则图生图失效。
 
-> ⚠️ 极速档同样是 cfg 1.0，**负向提示词不参与计算**，要约束的内容全部写进正向（同「图片风格转换」）。
+> ⚠️ 同样是 cfg 1.0，**负向提示词不参与计算**，要约束的内容全部写进正向（同「图片风格转换」）。
 
-### 中国彩墨图生图（质量版 / 极速版）
-同一套「空 latent + 参考图条件」链路的两个档位，提示词模板通用、不绑定具体照片
-（换参考照片记得把画布改成同比例，如 9:16 → 864×1536）：
-
-- **极速版**挂 Qwen-Image-2.1 Viggle Turbo 蒸馏 LoRA（8 步 / cfg 1.0），约 47 秒/张，
-  且实测结构保真/纹理密度更好（结构 0.831~0.887 vs 0.534，纹理密度 13.0 vs 11.1），
-  **日常出图首选**。首次运行慢约 3 分钟（LoRA 加载/修补一次性开销），服务不重启就一直快。
-- **质量版**（26 步 / cfg 3.2）保留作对照、以及需要用负向提示词控制画风的场合。
+### 中国彩墨图生图
+「空 latent + 参考图条件」链路，提示词模板通用、不绑定具体照片
+（换参考照片记得把画布改成同比例，如 9:16 → 864×1536）。
+挂 Viggle Turbo 蒸馏 LoRA（8 步 / cfg 1.0），约 47 秒/张，
+结构保真 0.831~0.887、纹理密度 13.0（原照 12.9）。
+首次运行慢约 3 分钟（LoRA 加载/修补一次性开销），服务不重启就一直快。
 
 > ⚠️ 本链路中负向提示词是「负资产」：负向里的「照片/摄影/写实」会把画面推离参考图结构
 > （同种子实测结构保真 0.826 → 0.534）。cfg 1.0 时负向不参与计算，反而更贴原照。
-> Turbo LoRA 许可为 Qwen Research License（**非商用**）。
 
 ### MiniMax-H3 图生视频（2026-10-15 已移除）
 该工作流与配套的约 27GB 视频模型（unet 主模型 / 32B 文本编码器 / turbo LoRA / 音视频 VAE）
@@ -130,7 +127,7 @@ python scripts/prepare.py --check        # 或先只做检查，缺什么会列�
 | `qwen-image-2.1-Q5_K_M.gguf` | 4.9 GB | `models/diffusion_models/` | [Qwen/Qwen-Image-2.1](https://huggingface.co/Qwen/Qwen-Image-2.1) 官方权重的 GGUF 量化版（[Comfy-Org/Qwen-Image-2.1](https://huggingface.co/Comfy-Org/Qwen-Image-2.1)、unsloth 等社区仓库有量化版） |
 | `qwen3vl_8b_int8_convrot.safetensors` | 8.7 GB | `models/text_encoders/` | 基于 [Qwen/Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) 的 int8 convrot 量化版（ComfyUI 社区量化）；也可用官方 BF16 |
 | `qwen_image_2.1_vae_bf16.safetensors` | 0.63 GB | `models/vae/` | [Comfy-Org/Qwen-Image-2.1](https://huggingface.co/Comfy-Org/Qwen-Image-2.1) |
-| `qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors`（**所有极速档必需**：图片风格转换 / 文生图-极速 / 彩墨极速） | 0.84 GB | `models/loras/` | Viggle Turbo v0.2.1 r128 蒸馏 LoRA（[Viggle/Qwen-Image-2.1-viggle-turbo](https://huggingface.co/Viggle/Qwen-Image-2.1-viggle-turbo)，Qwen Research License **非商用**；本仓库实测 SHA256 `2bbf5b6c…4f77f`） |
+| `qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors`（**必需**：图片风格转换 / 文生图 / 彩墨） | 0.84 GB | `models/loras/` | Viggle Turbo v0.2.1 r128 蒸馏 LoRA（[Viggle/Qwen-Image-2.1-viggle-turbo](https://huggingface.co/Viggle/Qwen-Image-2.1-viggle-turbo)，Qwen Research License **非商用**；本仓库实测 SHA256 `2bbf5b6c…4f77f`） |
 | `qwen-image-layered-Q4_K_S.gguf`（分层文生图用） | 12 GB | `models/diffusion_models/` | Qwen-Image-Layered 的 GGUF 量化版（unsloth 等社区仓库） |
 | `qwen_2.5_vl_7b_fp8_scaled.safetensors`（分层文生图用） | 8.7 GB | `models/text_encoders/` | Comfy-Org 社区重打包版（HF 搜 `qwen_2.5_vl_7b_fp8_scaled`） |
 | `qwen_image_layered_vae.safetensors`（分层文生图用） | 0.24 GB | `models/vae/` | [Comfy-Org/Qwen-Image-Layered_ComfyUI](https://huggingface.co/Comfy-Org/Qwen-Image-Layered_ComfyUI) |
@@ -159,7 +156,7 @@ python main.py --lowvram --preview-method auto
 仓库只跟踪策划资产（根目录共 6 个文件 + 5 个目录），其余根目录文件属于 ComfyUI 运行时，见下一节：
 
 ```
-├── workflows/                          # 7 个工作流（浏览器里直接拖进去打开）
+├── workflows/                          # 5 个工作流（浏览器里直接拖进去打开）
 ├── styles/                             # 风格库：一个 txt = 一种风格，支持 # 注释
 ├── custom_nodes/comfyui-style-prompt/  # 自建节点：风格下拉选择器 + 存回节点 + 背景填充
 ├── patches/                            # ComfyUI-GGUF 的 Qwen-Image 架构补丁
