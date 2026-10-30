@@ -1,24 +1,23 @@
-oil painting, thick impasto, palette knife strokes, heavy ridges of paint, visible canvas weave, strong warm-cool contrast, incandescent orange and yellow against slate blue-grey, saturated pigment, directional dragged brushwork, dramatic backlit glow, crusted textured highlights
+oil painting, broad sweeping palette-knife strokes, large bold blocks of paint, thick impasto ridges, simplified masses, strong warm-cool contrast, incandescent orange and yellow against slate blue-grey, saturated pigment, paint left unblended, alla prima
 
-Transform this photo into a bold impasto oil painting: build the image from thick palette-knife strokes and visible ridges of paint, and keep the original composition, the position of each element and its silhouette unchanged — change only the medium. Push the colour contrast hard — incandescent orange and yellow where the light lands, slate blue-grey and deep bottle green in the shadowed masses. The light comes from the same direction as in the photograph and is carried by opaque glowing paint rather than by smooth gradients; keep shadows as dense dark masses with broken colour along their edges. Let the canvas weave and the crusted paint texture stay visible across the whole surface.
+Transform this photo into a bold impasto oil painting worked with a palette knife in broad strokes. Keep the original composition, the position of each element and its silhouette unchanged — change only the medium. Lay each area of colour down in one or two sweeping knife strokes and then leave it: the paint stays in large flat planes with a hard ridge along the edge, and the inside of a shape is left unworked. Simplify busy detail — foliage, window grids, ornament — into a few large clumps of colour and broad planes, so the picture reads as big blocks rather than as a scatter of small marks. Push the colour contrast hard — incandescent orange and yellow where the light lands, slate blue-grey and deep bottle green in the shadowed masses. The light comes from the same direction as in the photograph and is carried by opaque glowing paint rather than by smooth gradients; keep each shadow as one dense dark mass.
 
-# ===== scripts/gen_style_from_images.py 反推，2026-10-30 人工校订 =====
+# ===== scripts/gen_style_from_images.py 反推，2026-10-30 按实测反馈重写 =====
 # 参考图：input/style_refs/06-浓烈油画/1.jpg（桌面 7.jpg，落日海面与孤塔）
 #
-# 为什么改了模型的原话：
-#   - 模型这次把关键词输出成了**中文**，而风格库统一用英文（项目实测英文更稳），全部译回。
-#   - 模型写「暖色调为主」，其实这张是**强冷暖对冲**（灰蓝天 vs 橙黄落日），
-#     照抄"暖色调"会让冷天压不住、整张偏橙。改成 warm-cool contrast 并点名两端颜色。
-#   - 补上刀痕（palette knife）和画布肌理——厚涂风格的辨识度主要来自这两样，
-#     模型只写了"肌理感强"这种笼统词。
-#   - 参考图右下角有公众号水印，模型没把它当风格；换图时注意别带进来。
+# v1 的问题（用户实测 image_style_transfer_00004_.png）：
+#   厚涂肌理是有了，但**笔触全细碎**——满屏小疙瘩、树叶一片片、天空细密乱涂，
+#   而参考图是刀刮的大色块、几笔到位、奔放。
+# 根因：v1 写了 brushwork / ridges / crusted textured highlights / visible canvas weave
+#   across the whole surface —— 全是「细密堆叠」的暗示，唯独没限定笔触要「大、少、肯定」。
+#   模型对笔触类词不限定尺寸时，默认画细碎。（同 02-简笔画的教训：线条太碎要 bold minimal strokes）
+# 这次改法：加 broad sweeping knife strokes / one or two strokes then leave it /
+#   大色块 / 简化形体；去掉 crusted、整面画布肌理这类诱导细密的词。
 #
 # 调参：
-#   - 不够厚 → 加强 thick impasto / heavy ridges of paint，别加 detailed（会变平）；
-#   - 颜色不够烈 → 加强 saturated pigment，或点名具体两端色（orange vs slate blue-grey）；
-#   - 参考图本来就是暗调，若你的照片很亮，describe 里补一句「压暗背景、只留受光处高亮」。
+#   - 还是碎 → 加强 large flat planes、one or two sweeping strokes，
+#     并检查 describe 里有没有「细腻/精致/detail」类词；
+#   - 太平没厚重感 → 加 thick impasto ridges（只加厚度，别加纹理词）；
+#   - 冷暖不够 → 点名两端具体色，别只写 warm。
 #
 # 本项目 cfg = 1.0，负向不参与计算，故不写 ---负向--- 段；要去掉什么写进节点的 describe 框。
-#
-# 模型的中文要点（仅供阅读，不送进模型）：
-#   强调笔触力度与颜料的物理质感，粗犷涂抹和堆叠制造视觉冲击，色彩对比鲜明，带情绪化表达。
