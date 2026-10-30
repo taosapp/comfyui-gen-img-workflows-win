@@ -48,6 +48,20 @@
 风格文件支持 `#` 注释（详见 `styles/_说明.txt`）；从零写提示词可参考
 `styles/_槽位模板.txt` 的填槽骨架。
 
+**手里只有图、不知道该写什么词？可以反推。** 把参考图放进 `input/style_refs/`
+（子文件夹名或文件名即风格名），启动 ComfyUI 后跑：
+
+```bash
+python scripts/gen_style_from_images.py            # 预览
+python scripts/gen_style_from_images.py --write    # 写入 styles/
+```
+
+它复用本项目已装的 Qwen3-VL-8B 文本编码器（ComfyUI 内置 `TextGenerate` 节点，
+`comfy/text_encoders/qwen3vl.py` 自带 `generate()`），**不装插件、不额外下模型**，
+输出只描述画风不描述内容。结果是**草稿**——反推看不见本项目约定（cfg 1.0、
+保真条款写法、别堆空泛画质词），文件末尾有检查清单，用前过一遍并跑
+`python scripts/check_prompts.py`。
+
 下拉框第一项是 **「自定义（只用下面这个框）」**：不读风格库，`describe` 框 = 完整正向
 提示词，原样送进模型（前面不加任何库内容）。适合手写一次性提示词，
 不用为了跑一次而新建风格文件。
@@ -162,6 +176,9 @@ python main.py --lowvram --preview-method auto
 ├── patches/                            # ComfyUI-GGUF 的 Qwen-Image 架构补丁
 ├── scripts/
 │   ├── prepare.py                      # 新机器一键准备（环境/运行时/依赖/节点补丁/模型）
+│   ├── gen_ink_workflow.py             # 生成中国彩墨图生图.json（幂等，带连线自检）
+│   ├── gen_style_from_images.py        # 从参考图反推风格提示词 → styles/
+│   ├── check_prompts.py                # 按官方规范体检所有提示词
 │   └── launcher/                       # Windows 启动器维护件：UTF-8 源 + rebuild.py + selftest.py
 ├── start_comfyui.bat                   # Windows 启动器（自动探测 conda/venv）
 └── start_comfyui_mac.sh                # mac / Linux 启动器

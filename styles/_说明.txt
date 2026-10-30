@@ -60,3 +60,18 @@
   —— 文生图 / 照片风格化 / 照片增强 —— 按官方规范压缩而成，〈 〉里填空即可。
   核心四条：保真只点名位置与角色、不描述外观；光照单独成句；不堆空泛画质词；
   一次只改一个维度。
+
+想让模型帮你反推一种风格（拿到一张喜欢的图，想知道该写什么词）：
+  1. 把参考图放进 input/style_refs/，两种放法任选：
+       子文件夹：input/style_refs/水墨/1.png   → 生成 styles/水墨.txt
+       平铺：    input/style_refs/水彩.png     → 生成 styles/水彩.txt
+     一个风格放多张图时，只有按文件名排序的第一张会被用上（多图不自动合并，
+     合并容易掺进不属于该风格的词；想更准就换一张更有代表性的图重跑）。
+  2. 启动 ComfyUI（脚本走它的接口，复用已装的 Qwen3-VL-8B，不额外下模型）
+  3. python scripts/gen_style_from_images.py            # 先预览，不写文件
+     python scripts/gen_style_from_images.py --write    # 确认后写入 styles/
+  4. 浏览器 F5，新风格就出现在下拉框里。
+
+  ⚠️ 反推出来的只是**草稿**：它看得见那张图，看不见本项目约定（cfg 1.0、保真条款
+  怎么写、别堆空泛画质词）。文件末尾留了检查清单，用之前过一遍，
+  再用 python scripts/check_prompts.py 体检。
