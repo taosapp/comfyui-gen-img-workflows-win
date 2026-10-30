@@ -18,6 +18,7 @@
 # 其 UTF-8 源与重建/自检脚本在 scripts/launcher/ 下，随 scripts/ 一起跟踪
 !/start_comfyui.bat
 !/start_comfyui_mac.sh
+!/make_style.bat
 
 # custom_nodes 里只保留自建节点包
 /custom_nodes/*
