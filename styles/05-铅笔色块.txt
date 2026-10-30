@@ -1,0 +1,23 @@
+pencil line drawing with flat colour blocks, graphite outlines of uneven weight, hand-drawn wobbly lines, flat opaque colour fills, no gradients inside a shape, warm poster-print palette, visible paper grain, minimal shading, layered flat planes, matte print texture
+
+Transform this photo into a hand-drawn illustration: pencil outlines of uneven weight define every shape, and flat opaque colour blocks fill them in, with no gradient inside a shape. Keep the original composition, the position of each element and its silhouette unchanged — change only the medium. Let the line work stay visible on top of the colour, and let the paper grain show through the flat fills. The light is flat and even, carried by the choice of colour blocks rather than by shading; render shadows as a single darker flat tone instead of a gradient.
+
+# ===== scripts/gen_style_from_images.py 反推，2026-10-30 人工校订 =====
+# 参考图：input/style_refs/05-铅笔色块/1.jpg（桌面 6.jpg，粉紫天空的田野）
+#
+# 为什么改了模型的原话：
+#   - 模型给的是「graphic design / poster art / clean lines」——那是矢量平面设计的路子，
+#     而**要的是铅笔勾勒 + 色块填充**，是有手绘痕迹的，不是 AI 矢量图。
+#   - 因此加了 hand-drawn wobbly lines / graphite outlines of uneven weight，
+#     删掉 clean lines 和 graphic design。
+#   - 参考图右下角有平台水印，模型没把它当风格，很好；换图时留意别把水印带进来。
+#
+# 和 02-简笔画 的区别：这个要**填色块**，02 是纯黑白线稿。
+#   - 色块不匀 / 出渐变 → 加强 no gradients inside a shape、flat opaque colour fills；
+#   - 线条太碎 → 减词，本风格线条宜少而肯定（02 的教训：长指令压不住，别堆）；
+#   - 该风格对「填色」敏感，describe 里写清每个区域要什么颜色最有效。
+#
+# 本项目 cfg = 1.0，负向不参与计算，故不写 ---负向--- 段；要去掉什么写进节点的 describe 框。
+#
+# 模型的中文要点（仅供阅读，不送进模型）：
+#   平面化 + 图形化，清晰轮廓线配高饱和色块，明暗被简化，强调色块对比与构图层次。

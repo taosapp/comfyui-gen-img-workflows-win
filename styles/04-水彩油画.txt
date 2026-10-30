@@ -1,0 +1,23 @@
+bright watercolor washes, visible oil paint brush strokes, luminous translucent pigment, vibrant spring greens, warm sunlight patches, soft wet-on-wet edges, short opaque impasto highlights, high key palette, clean white paper showing through, crisp dappled shadows
+
+Transform this photo into a bright watercolor painting with visible oil paint brushwork: keep the original subject, where it sits in the frame, and the overall composition unchanged — change only the medium. Let translucent washes carry the midtones, and use short opaque oil strokes only in the sunlit highlights and along the tree trunks. The light falls from the same direction as in the photograph and is carried by reserved white paper plus warm opaque touches on the sunlit edges; shadows are laid in as a single cool transparent wash rather than as dark paint. Keep the overall tone bright, fresh and airy, never muddy, heavy or dull.
+
+# ===== scripts/gen_style_from_images.py 反推，2026-10-30 人工校订 =====
+# 参考图：input/style_refs/04-水彩油画/1.jpg（桌面 5.jpg，白桦林大道）
+#
+# 为什么改了模型的原话：
+#   - 模型给的是「Digital painting / smooth brushwork / matte finish / stylized realism」——
+#     参考图本身确实是数字插画，但**要的是水彩 + 油画笔触**，媒介词按需求改，不能照抄所见。
+#   - 删掉 clean lines（水彩没有干净线稿）、even lighting（这张光斑很硬，而且光照要单独交代）。
+#   - 保留模型认对的客观特征：明亮黄绿、强对比、光斑高光。
+#
+# 调参：
+#   - 水彩味不够 → 加强 clean white paper showing through 和 light washes；
+#     别加 saturated / vivid，会往数字插画跑；
+#   - 油笔触不够 → 加强 short opaque impasto strokes on the sunlit edges；
+#   - 换成秋天照片时把 vibrant spring greens 改成 amber and rust。
+#
+# 本项目 cfg = 1.0，负向不参与计算，故不写 ---负向--- 段；要去掉什么写进节点的 describe 框。
+#
+# 模型的中文要点（仅供阅读，不送进模型）：
+#   关键是色彩的饱和度与光影的纯净感，平滑笔触 + 高对比，既写实又略带梦幻。
