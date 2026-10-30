@@ -1,29 +1,35 @@
-pen-and-ink stipple portrait, pure black ink on bare white paper, two values only, large clearly separated dots, dots crowd in the shadows and thin out in the highlights, fine cross-hatching confined to hair and clothing, hard-edged monochrome, clean empty white background, engraving illustration
+pen-and-ink stipple portrait, pure black ink on bare white paper, two values only, coarse bold dots, generous white space between dots, every dot is a perfect circle, dots merge into solid black in the shadows, fine cross-hatching confined to hair and clothing, hard-edged monochrome, clean empty white background, engraving illustration
 
-Transform this photo into a pen-and-ink stipple portrait. Keep the original subject, where it sits in the frame, and the overall composition unchanged — change only the medium. Every tone is built from dots, and each dot stays large enough to read as a separate mark at normal viewing size. The dots crowd together in the deepest shadows, thin out steadily across the mid-tones, and on the lit side of the face only a few scattered dots remain so the bare white paper carries the highlight. Fine cross-hatching belongs only in the hair and the clothing, so the face itself reads as a field of dots. The picture holds two values only — solid black ink and the white of the paper — with clean hard edges on every mark. The background stays plain empty white paper with nothing drawn on it.
+Transform this photo into a pen-and-ink stipple portrait. Keep the original subject, where it sits in the frame, and the overall composition unchanged — change only the medium. Every tone is built from dots, and each dot is a coarse round mark about the size of a pen tip — plainly a dot, never a speck of grain — with the white of the paper still clearly visible between neighbouring dots. In the deepest shadows the dots touch and merge into solid black; across the mid-tones they separate into a loose even scatter; and on the lit side of the face the paper is almost entirely bare, carrying only a thin scatter of dots along the edge of the light. Fine cross-hatching belongs only in the hair and the clothing, so the face itself reads as a field of dots. The picture holds two values only — solid black ink and the white of the paper — with clean hard edges on every mark. The background stays plain empty white paper with nothing drawn on it.
 
-# ===== 点阵肖像（铜版画式 stipple engraving），2026-10-30 按实测反馈重写 =====
-# 参考图：input/style_refs/08-dot-avatar/1.jpg、2.jpg（同一种风格的两张男女人像）
+# ===== 点阵肖像（铜版画式 stipple engraving），2026-10-30 第三稿 =====
+# 参考图：input/style_refs/08-dot-avatar/1.jpg、2.jpg
 #
-# v1 的问题（实测 output/image_style_transfer_00001_.png，1344×768）：
-#   点小到糊成一片灰噪点，背景深灰、带大量灰阶，完全不像参考图那种「清晰可数的大点」。
-# 根因三条：
-#   1. `halftone` 是**均匀印刷网点**，这个分辨率下必然糊成灰——它和 stipple 点画是两种东西；
-#   2. `textured paper` / `vintage print` 让背景发灰发脏，永远得不到纯白；
-#   3. **没限定点的尺寸和间距**，模型就画到最小最密
-#      （同 06 浓烈油画的教训：笔触不限尺寸就变细碎，点同理）。
-# 这次改法：删 halftone / textured paper / vintage print / bold lines；
-#   把「点要大、能单独看见、阴影密高光疏」和「背景是空白白纸」写成正向硬要求。
+# 演进：
+#   v1 脚本草稿：halftone + textured paper + vintage print → 点糊成灰噪、背景深灰。
+#   v2 删掉 halftone/纸纹/复古，加 large clearly separated dots + 纯白背景 + 两值
+#      → 背景白了，点能看出来了，但仍均匀偏密。
+#   v3 加「受光面只留散点」→ 出现疏密层次。（提交 d50e99d）
+#   v4 本轮：点再放大（coarse bold dots / the size of a pen tip / never a speck of grain
+#      / 点之间白纸要看得见）；高光区从「少量散点」加强到「几乎全空白」。
+#
+# 关于「高光面积调大」——这不是一个参数：
+#   - cfg 已固定 1.0（Turbo 配方），denoise 固定 1.0，都没有"对比度"旋钮；
+#   - 高光面积是结果：点变大 → 单位面积点变少 → 间隙变白 → 高光自然变大；
+#   - 再加提示词点名留白区，两条一起才有效。
+#   如果原片本身很暗，可先在 describe 里说明「整体提亮、受光面扩大」，但会牺牲结构保真。
+#
+# 点形状（v4 新增）：tags 里写死了 every dot is a perfect circle。
+#   想换成方块／菱形等，改这一句即可；或按下面「形状标记」用一句话切换。
+#   实测形状指令对模型有效，但优先级低于"密度/留白"——形状改了、密度太密，
+#   照样糊成一片，所以先保证点大、留白足，再谈形状。
 #
 # 调参：
-#   - 点还是太小 → 加强 large clearly separated dots、each dot reads as a separate mark；
+#   - 还太密 → 加强 generous white space between dots、never a speck of grain；
 #     别加 detailed / high resolution，那会把点推得更密；
-#   - 背景还是发灰 → 检查 describe 里有没有「背景是墙 / 天空 / 虚化」之类的词，
-#     cfg 1.0 下负向不生效，只能在正向写 background stays plain empty white paper；
-#   - 脸上出现排线 → 加强 cross-hatching belongs only in the hair and clothing；
-#   - 想要更"块"的像素风 → 把 dots 换成 large square blocks，那是另一个风格。
+#   - 背景发灰 → 检查 describe 里有没有「背景是墙/天空/虚化」，cfg 1.0 负向无效；
+#   - 脸上出现排线 → 加强 cross-hatching belongs only in the hair and the clothing。
 #
-# 构图建议：这种风格在**竖幅、脸占画面比例大**时最像参考图；
-#   横图大场景会让点铺满整个画面，观感必然变密。
+# 构图建议：竖幅、脸占画面比例大时最像参考图；横图大场景点会铺满全画面，观感必然变密。
 #
 # 本项目 cfg = 1.0，负向不参与计算，故不写 ---负向--- 段；要去掉什么写进节点的 describe 框。

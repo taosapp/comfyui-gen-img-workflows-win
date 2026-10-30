@@ -183,6 +183,7 @@ python main.py --lowvram --preview-method auto
 │   ├── prepare.py                      # 新机器一键准备（环境/运行时/依赖/节点补丁/模型）
 │   ├── gen_ink_workflow.py             # 生成中国彩墨图生图.json（幂等，带连线自检）
 │   ├── gen_style_from_images.py        # 从参考图反推风格提示词 → styles/
+│   ├── make_dot_matrix.py              # 照片/成图 → 几何点阵（正圆/方块/菱形…形状可控）
 │   ├── check_prompts.py                # 按官方规范体检所有提示词
 │   └── launcher/                       # Windows 启动器维护件：UTF-8 源 + rebuild.py + selftest.py
 ├── start_comfyui.bat                   # Windows 启动器（自动探测 conda/venv）
