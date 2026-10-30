@@ -1,0 +1,665 @@
+{
+ "last_node_id": 19,
+ "last_link_id": 25,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "UnetLoaderGGUF",
+   "pos": [
+    0,
+    0
+   ],
+   "size": [
+    315,
+    58
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      21
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UnetLoaderGGUF"
+   },
+   "widgets_values": [
+    "qwen-image-2.1-Q5_K_M.gguf"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "CLIPLoader",
+   "pos": [
+    0,
+    120
+   ],
+   "size": [
+    315,
+    82
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      2
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen3vl_8b_int8_convrot.safetensors",
+    "qwen_image",
+    "default"
+   ]
+  },
+  {
+   "id": 3,
+   "type": "VAELoader",
+   "pos": [
+    0,
+    260
+   ],
+   "size": [
+    315,
+    58
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      3,
+      11
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "qwen_image_2.1_vae_bf16.safetensors"
+   ]
+  },
+  {
+   "id": 4,
+   "type": "LoadImage",
+   "pos": [
+    0,
+    380
+   ],
+   "size": [
+    315,
+    314
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      4
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "6.png",
+    "image"
+   ]
+  },
+  {
+   "id": 5,
+   "type": "TextEncodeQwenImage21",
+   "pos": [
+    1220,
+    0
+   ],
+   "size": [
+    400,
+    240
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 2
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "widget": {
+      "name": "prompt"
+     },
+     "link": 20
+    },
+    {
+     "name": "negative_prompt",
+     "type": "STRING",
+     "widget": {
+      "name": "negative_prompt"
+     },
+     "link": 23
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 11
+    },
+    {
+     "name": "images.image_1",
+     "type": "IMAGE",
+     "link": 4
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      5
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      9
+     ],
+     "slot_index": 1
+    },
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      10
+     ],
+     "slot_index": 2
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImage21"
+   },
+   "widgets_values": [
+    "",
+    "",
+    512
+   ],
+   "title": "编码（提示词由左侧节点送入）+ 分辨率"
+  },
+  {
+   "id": 6,
+   "type": "KSampler",
+   "pos": [
+    1220,
+    280
+   ],
+   "size": [
+    315,
+    262
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 22
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 5
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 9
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 10
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      7
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    42,
+    "randomize",
+    8,
+    1.0,
+    "euler",
+    "beta",
+    1.0
+   ]
+  },
+  {
+   "id": 7,
+   "type": "VAEDecode",
+   "pos": [
+    1220,
+    580
+   ],
+   "size": [
+    210,
+    46
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 7
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      8
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   }
+  },
+  {
+   "id": 8,
+   "type": "SaveImage",
+   "pos": [
+    1640,
+    0
+   ],
+   "size": [
+    315,
+    270
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 25
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "点阵头像/点阵头像"
+   ],
+   "title": "⑩ 出图"
+  },
+  {
+   "id": 13,
+   "type": "StylePromptSelector",
+   "title": "⑦ 提示词（默认 dot-avatar，可换库里的其它风格）",
+   "pos": [
+    380,
+    0
+   ],
+   "size": [
+    460,
+    300
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "links": [
+      20
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "negative",
+     "type": "STRING",
+     "links": [
+      23
+     ],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "StylePromptSelector"
+   },
+   "widgets_values": [
+    "dot-avatar",
+    ""
+   ]
+  },
+  {
+   "id": 14,
+   "type": "QwenImage21Cache",
+   "title": "KV 缓存加速（勿删）",
+   "pos": [
+    380,
+    440
+   ],
+   "size": [
+    460,
+    82
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 24
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      22
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "QwenImage21Cache"
+   },
+   "widgets_values": [
+    "auto",
+    "default"
+   ]
+  },
+  {
+   "id": 16,
+   "type": "LoraLoaderBypassModelOnly",
+   "pos": [
+    380,
+    340
+   ],
+   "size": [
+    460,
+    82
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 21
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      24
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderBypassModelOnly"
+   },
+   "widgets_values": [
+    "qwen_image_2.1_viggle_turbo_v0.2.1_r128_comfy.safetensors",
+    1.0
+   ],
+   "title": "⑯ Turbo 蒸馏 LoRA（提速关键，勿删）"
+  },
+  {
+   "id": 18,
+   "type": "MarkdownNote",
+   "pos": [
+    380,
+    580
+   ],
+   "size": [
+    470,
+    720
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "MarkdownNote"
+   },
+   "widgets_values": [
+    "## 点阵头像（Qwen-Image-2.1 + 点阵化）\n\n**模型负责把照片变成白底点画，⑨ 点阵化节点决定点的形状和疏密**。\n两步缺一不可：模型画不出真正的几何点（实测改提示词几乎无效），\n而直接对照片点阵化会继承原图背景（暗背景照出来就是深底）。\n\n### 三个主要旋钮（⑨ 点阵化）\n| 控件 | 作用 | 调法 |\n|---|---|---|\n| **shape** | 点的形状 | circle 正圆 / square 方块 / diamond 菱形 / triangle 三角 / hexagon 六边形 / cross 十字 |\n| **cell** | 网格边长（像素） | **点太小太密就调大**（12 → 16 → 20）；想更细腻调小 |\n| **white_at** | 高光裁切阈值 | **调小 = 高光面积变大**（240 → 225 → 210）；想留更多白纸就往小调 |\n\n另外三个一般不用动：\n- `black_at`（默认 25）暗部低于此值画满实黑，调大暗部更快成实块；\n- `max_ratio`（默认 0.96）最深处点径占网格的比例，1.0 = 暗部点相接；\n- `angle` 网格旋转角，只对方形/三角/六边形有明显效果。\n\n### 提示词\n⑦ 提示词节点默认选 **dot-avatar** 风格，来自 `styles/08-dot-avatar.txt`；\n换照片只改「describe」框（这张照片的人物、背景要不要留），不用动风格库。\n\n> ⚠️ 本工作流 cfg = 1.0（Turbo 配方），**负向提示词不参与计算**。\n> 要去掉什么、想强调什么，全部写进 describe 框（正向）。\n> 背景不是纯白时，先在 describe 里写「背景纯白、不要保留原背景」。\n\n### 构图建议\n这种风格在**竖幅、脸占画面比例大**时最好看。横图大场景点会铺满整个画面，\n观感必然变密——那是构图问题，不是 cell 太小。\n\n### 常见问题\n| 症状 | 怎么调 |\n|---|---|\n| 点糊成一片灰 | cell 调大（点变大）+ white_at 调小（高光留白）|\n| 背景发灰、不是白的 | describe 里补「背景纯白」；模型那一步没白，点阵化只会忠实还原 |\n| 脸上一半是排线 | describe 里补「线条只用在头发和衣服」|\n| 想换点形状 | 只改 ⑨ 的 shape，不用重跑模型（把 ⑧ 缓存开着就行）|\n"
+   ]
+  },
+  {
+   "id": 19,
+   "type": "DotMatrix",
+   "pos": [
+    1220,
+    660
+   ],
+   "size": [
+    340,
+    300
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 8
+    }
+   ],
+   "outputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "links": [
+      25
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "DotMatrix"
+   },
+   "widgets_values": [
+    "circle",
+    12,
+    240.0,
+    25.0,
+    0.96,
+    0.0,
+    false
+   ],
+   "title": "⑨ 点阵化（shape 形状 / cell 密度 / white_at 高光留白）"
+  }
+ ],
+ "links": [
+  [
+   2,
+   2,
+   0,
+   5,
+   0,
+   "CLIP"
+  ],
+  [
+   3,
+   3,
+   0,
+   7,
+   1,
+   "VAE"
+  ],
+  [
+   4,
+   4,
+   0,
+   5,
+   4,
+   "IMAGE"
+  ],
+  [
+   5,
+   5,
+   0,
+   6,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   7,
+   6,
+   0,
+   7,
+   0,
+   "LATENT"
+  ],
+  [
+   8,
+   7,
+   0,
+   19,
+   0,
+   "IMAGE"
+  ],
+  [
+   9,
+   5,
+   1,
+   6,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   10,
+   5,
+   2,
+   6,
+   3,
+   "LATENT"
+  ],
+  [
+   11,
+   3,
+   0,
+   5,
+   3,
+   "VAE"
+  ],
+  [
+   20,
+   13,
+   0,
+   5,
+   1,
+   "STRING"
+  ],
+  [
+   22,
+   14,
+   0,
+   6,
+   0,
+   "MODEL"
+  ],
+  [
+   23,
+   13,
+   1,
+   5,
+   2,
+   "STRING"
+  ],
+  [
+   21,
+   1,
+   0,
+   16,
+   0,
+   "MODEL"
+  ],
+  [
+   24,
+   16,
+   0,
+   14,
+   0,
+   "MODEL"
+  ],
+  [
+   25,
+   19,
+   0,
+   8,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "config": {},
+ "extra": {},
+ "version": 0.4
+}

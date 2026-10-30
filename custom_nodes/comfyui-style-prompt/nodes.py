@@ -37,6 +37,7 @@
 """
 
 import logging
+import math
 import os
 import re
 
@@ -354,15 +355,156 @@ class BackgroundFillSmooth:
         return (torch.from_numpy(work).float().unsqueeze(0),)
 
 
+def _dot_shape(draw, cx, cy, r, shape, angle):
+    """在 (cx,cy) 画一个外接半径 r 的指定形状，黑色实心。"""
+    if r <= 0.2:
+        return
+    if shape == "circle":
+        draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=0)
+    elif shape == "square":
+        a = math.radians(angle)
+        pts = []
+        for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+            px, py = sx * r, sy * r
+            pts.append((cx + px * math.cos(a) - py * math.sin(a),
+                        cy + px * math.sin(a) + py * math.cos(a)))
+        draw.polygon(pts, fill=0)
+    elif shape == "diamond":
+        draw.polygon([(cx, cy - r), (cx + r, cy), (cx, cy + r), (cx - r, cy)], fill=0)
+    elif shape == "triangle":
+        draw.polygon([(cx, cy - r), (cx + r * 0.866, cy + r * 0.5),
+                      (cx - r * 0.866, cy + r * 0.5)], fill=0)
+    elif shape == "hexagon":
+        draw.polygon([(cx + r * math.cos(math.radians(60 * i - 30)),
+                       cy + r * math.sin(math.radians(60 * i - 30))) for i in range(6)], fill=0)
+    elif shape == "cross":
+        arm = r * 0.38
+        draw.rectangle([cx - arm, cy - r, cx + arm, cy + r], fill=0)
+        draw.rectangle([cx - r, cy - arm, cx + r, cy + arm], fill=0)
+
+
+class DotMatrix:
+    """点阵化：把图像重绘成规则网格上的几何点阵（半调网点）。
+
+    为什么需要这个节点：让模型「画正圆点」是做不到的——实测同一 seed 下把提示词从
+    `every dot is a perfect circle` 换成 `square block`，平均像素差只有 2.51%、
+    相关系数 0.9845，等于没听。原因是扩散模型画的是笔尖墨点（每点 2~4 像素），
+    圆和方在那个尺度上不存在。要真正的几何形状，只能在像素层面画出来。
+
+    算法：按 cell×cell 切格 → 取每格平均灰度 → 该格画一个形状，外接半径与暗度成正比
+    （面积正比于墨量，即标准半调）→ 网格居中，输出尺寸与原图一致。
+
+    控件说明：
+      shape      点的形状
+      cell       网格边长（像素）。越小点越多越密；想「点大而疏」就把 cell 调大
+      white_at   灰度高于此值的格子不画点（纯白）。调小 = 高光面积变大
+      black_at   灰度低于此值的格子画满（实黑）。调大 = 暗部更快成实块
+      max_ratio  最深处形状直径占 cell 的比例，1.0 = 相邻点刚好相接
+      angle      只对方形/三角/六边形网格起作用
+      invert     深底白点
+
+    典型用法：照片 → 点阵头像风格（让背景变纯白）→ 本节点（决定点的形状与疏密）。
+    直接对普通照片点阵化也可以，但底色会跟着原图走——暗背景照出来就是深底。
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "shape": (["circle", "square", "diamond", "triangle", "hexagon", "cross"], {
+                    "default": "circle",
+                    "tooltip": "点的几何形状。模型画不出真正的几何点，这一步才是决定性的一环",
+                }),
+                "cell": ("INT", {
+                    "default": 12, "min": 4, "max": 64, "step": 1,
+                    "tooltip": "网格边长（像素）。想让点更大更疏就调大，想更细腻就调小",
+                }),
+                "white_at": ("FLOAT", {
+                    "default": 240.0, "min": 0.0, "max": 255.0, "step": 1.0,
+                    "tooltip": "灰度高于此值的格子完全不画点（纯白）。调小 = 高光面积变大",
+                }),
+                "black_at": ("FLOAT", {
+                    "default": 25.0, "min": 0.0, "max": 255.0, "step": 1.0,
+                    "tooltip": "灰度低于此值的格子画满成实黑",
+                }),
+                "max_ratio": ("FLOAT", {
+                    "default": 0.96, "min": 0.2, "max": 1.0, "step": 0.02,
+                    "tooltip": "最深的点直径占网格边长的比例。1.0 = 暗部点挨在一起",
+                }),
+                "angle": ("FLOAT", {
+                    "default": 0.0, "min": -90.0, "max": 90.0, "step": 1.0,
+                    "tooltip": "网格旋转角，只对方形 / 三角 / 六边形有明显效果",
+                }),
+                "invert": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "深底白点（默认是白底黑点）",
+                }),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("image",)
+    FUNCTION = "render"
+    CATEGORY = "image/stylize"
+
+    def render(self, image, shape, cell, white_at, black_at, max_ratio, angle, invert):
+        import numpy as np
+        import torch
+        from PIL import Image as PILImage, ImageDraw
+
+        batch = []
+        for idx in range(image.shape[0]):
+            arr = image[idx].cpu().numpy().astype(np.float32)
+            if arr.shape[-1] >= 3:
+                gray = arr[..., :3] @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
+            else:
+                gray = arr[..., 0]
+            gray = gray * 255.0
+            if invert:
+                gray = 255.0 - gray
+
+            h, w = gray.shape
+            gw, gh = w // cell, h // cell
+            if gw < 1 or gh < 1:
+                raise ValueError(f"[style-prompt] DotMatrix: cell={cell} 比图还大（{w}x{h}）")
+            means = gray[:gh * cell, :gw * cell].reshape(gh, cell, gw, cell).mean(axis=(1, 3))
+
+            # 网格居中，边缘留下的零头保持白纸，输出尺寸与原图一致
+            ox = (w - gw * cell) / 2.0
+            oy = (h - gh * cell) / 2.0
+            canvas = PILImage.new("L", (w, h), 255)
+            draw = ImageDraw.Draw(canvas)
+            max_r = cell * max_ratio / 2.0
+            span = max(white_at - black_at, 1e-6)
+            for gy in range(gh):
+                cy = oy + gy * cell + cell / 2.0
+                for gx in range(gw):
+                    v = float(means[gy, gx])
+                    if v >= white_at:
+                        continue
+                    if v <= black_at:
+                        r = max_r
+                    else:
+                        r = max_r * math.sqrt(min(max((white_at - v) / span, 0.0), 1.0))
+                    _dot_shape(draw, ox + gx * cell + cell / 2.0, cy, r, shape, angle)
+
+            dots = np.asarray(canvas, dtype=np.float32) / 255.0
+            batch.append(np.repeat(dots[..., None], 3, axis=-1))
+        return (torch.from_numpy(np.stack(batch)).float(),)
+
+
 NODE_CLASS_MAPPINGS = {
     "StylePromptSelector": StylePromptSelector,
     "StylePromptSave": StylePromptSave,
     "BackgroundFillSmooth": BackgroundFillSmooth,
+    "DotMatrix": DotMatrix,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "StylePromptSelector": "风格提示词（通用库 + 本图描述）",
     "StylePromptSave": "风格提示词存回库",
+    "DotMatrix": "点阵化（形状 / 疏密 / 高光裁切）",
 }
 
 

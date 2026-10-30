@@ -9,6 +9,7 @@
 | `workflows/抠图.json` | 透明底抠图（BiRefNet 专用分割模型，不改像素） | 约 3 秒/张 |
 | `workflows/文生图.json` | Qwen-Image-2.1 文生图（GGUF + Turbo LoRA + KV 缓存）；**参考图接线 = 图生图，静音 = 纯文生图** | 约 22 秒/张（720 纯文生图），接参考图约 80 秒 |
 | `workflows/中国彩墨图生图.json` | 中国彩墨画，文生图 / 照片转彩墨画两用（默认画布 864×1152 / 3:4，通用提示词不绑定具体照片） | 约 47 秒/张（首次约 4 分钟，含 LoRA 加载） |
+| `workflows/点阵头像.json` | 点阵人像：模型出白底点画，再接 ⑨ 点阵化节点**决定点的形状与疏密**（正圆/方块/菱形/三角/六边形/十字，高光留白可调） | 约 60 秒/张（含点阵化） |
 | `workflows/分层文生图.json` | Qwen-Image-Layered 一次生成分层图（文字直接生成多层，LatentCut 切层输出） | 待实测 |
 
 除 `分层文生图` 与 `抠图` 外，其余工作流统一为 **8 步 / cfg 1.0 + Turbo 蒸馏 LoRA** 的单档配方。
@@ -175,7 +176,7 @@ python main.py --lowvram --preview-method auto
 仓库只跟踪策划资产（根目录共 6 个文件 + 5 个目录），其余根目录文件属于 ComfyUI 运行时，见下一节：
 
 ```
-├── workflows/                          # 5 个工作流（浏览器里直接拖进去打开）
+├── workflows/                          # 6 个工作流（浏览器里直接拖进去打开）
 ├── styles/                             # 风格库：一个 txt = 一种风格，支持 # 注释
 ├── custom_nodes/comfyui-style-prompt/  # 自建节点：风格下拉选择器 + 存回节点 + 背景填充
 ├── patches/                            # ComfyUI-GGUF 的 Qwen-Image 架构补丁
