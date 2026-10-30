@@ -1,2 +1,3 @@
-# start_comfyui.bat 是 GBK 编码，按二进制处理，禁止 git 改写其字节
+# start_comfyui.bat / make_style.bat 是 GBK 编码，按二进制处理，禁止 git 改写其字节
 start_comfyui.bat -text
+make_style.bat -text

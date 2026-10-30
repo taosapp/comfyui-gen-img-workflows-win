@@ -49,7 +49,12 @@
 `styles/_槽位模板.txt` 的填槽骨架。
 
 **手里只有图、不知道该写什么词？可以反推。** 把参考图放进 `input/style_refs/`
-（子文件夹名或文件名即风格名），启动 ComfyUI 后跑：
+（子文件夹名或文件名即风格名），启动 ComfyUI 后——
+
+最省事：**双击根目录的 `make_style.bat`**，它会问「直接写入还是只预览」，
+自动找解释器、跑完停住不关窗。
+
+或者走命令行：
 
 ```bash
 python scripts/gen_style_from_images.py            # 预览
@@ -181,6 +186,7 @@ python main.py --lowvram --preview-method auto
 │   ├── check_prompts.py                # 按官方规范体检所有提示词
 │   └── launcher/                       # Windows 启动器维护件：UTF-8 源 + rebuild.py + selftest.py
 ├── start_comfyui.bat                   # Windows 启动器（自动探测 conda/venv）
+├── make_style.bat                      # 双击反推风格提示词（会问写入还是预览）
 └── start_comfyui_mac.sh                # mac / Linux 启动器
 ```
 
