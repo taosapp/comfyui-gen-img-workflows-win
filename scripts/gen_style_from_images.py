@@ -92,25 +92,32 @@ def collect_styles():
 
 
 def upload_image(port, path):
-    """把本地图传进 ComfyUI 的 input 目录，返回它认得的文件名。"""
+    """把本地图传进 ComfyUI 的 input/_stylegen/，返回 LoadImage 认得的相对路径。
+
+    放进子目录而不是 input/ 根下：本目录下 input/ 放的是用户自己的照片，
+    每跑一次就往根下丢一份副本，跑十次就多十张垃圾。
+    """
     with open(path, "rb") as f:
         raw = f.read()
     boundary = "----stylegen"
     name = os.path.basename(path)
-    body = (
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="image"; filename="{name}"\r\n'
-        f"Content-Type: application/octet-stream\r\n\r\n"
-    ).encode() + raw + (
-        f"\r\n--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="overwrite"\r\n\r\ntrue\r\n'
-        f"--{boundary}--\r\n"
-    ).encode()
+    parts = [
+        f'Content-Disposition: form-data; name="image"; filename="{name}"',
+        "Content-Type: application/octet-stream",
+    ]
+    body = (f"--{boundary}\r\n" + "\r\n".join(parts) + "\r\n\r\n").encode() + raw
+    for field, value in (("overwrite", "true"), ("subfolder", "_stylegen")):
+        body += (f"\r\n--{boundary}\r\n"
+                 f'Content-Disposition: form-data; name="{field}"\r\n\r\n'
+                 f"{value}").encode()
+    body += f"\r\n--{boundary}--\r\n".encode()
     req = urllib.request.Request(
         f"http://127.0.0.1:{port}/upload/image", data=body,
         headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
     with _opener.open(req, timeout=120) as r:
-        return json.loads(r.read().decode())["name"]
+        info = json.loads(r.read().decode())
+    sub = info.get("subfolder") or ""
+    return f"{sub}/{info['name']}" if sub else info["name"]
 
 
 def run_generate(port, image_name, max_len):
