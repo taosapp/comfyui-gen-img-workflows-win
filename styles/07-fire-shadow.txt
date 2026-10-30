@@ -1,0 +1,17 @@
+Silhouetted, flat, graphic, bold, high-contrast, minimalistic, solid black, vibrant orange, clean lines, stark, stylized, vector-like
+
+Transform this photo into a bold, high-contrast vector illustration with solid black silhouettes and a vibrant orange background, preserving the original composition, object placement, and outline shapes.
+
+# ===== 由 scripts/gen_style_from_images.py 于 2026-10-30 生成，是草稿 =====
+# 参考图：input/style_refs/07-fire-shadow/1.png
+#
+# 生成后请人工过一遍：反推只看得见这张图，不知道项目约定——
+#   1. 删掉与风格无关、或这张图特有的词（别把偶然元素当风格）；
+#   2. 补上你最在意的质感词（纸纹、颗粒、笔痕这些比形容词有用）；
+#   3. 不要加 masterpiece / best quality / 8K 这类空泛画质词，
+#      scripts/check_prompts.py 会报错，官方规范也禁止；
+#   4. 本项目 cfg = 1.0，负向不参与计算，本文件不写 ---负向--- 段；
+#      要去掉什么，写进节点的 describe 框（正向）。
+#
+# 模型的中文要点（仅供阅读，不送进模型）：
+#   这种风格最强调轮廓的纯粹性和色彩的强烈对比，通过极简的图形化处理，让画面在视觉上产生强烈的冲击力和象征意味。它舍弃细节，只保留形状和色块，从而强化情绪和主题表达。
