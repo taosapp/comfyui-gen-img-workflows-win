@@ -1,5 +1,31 @@
 # patches —— 本机对第三方节点的改动存档
 
+## comfyui-nodes_qwen-prompt-ratio.patch
+
+**作用**：给 ComfyUI 本体的 `comfy_extras/nodes_qwen.py`（`TextEncodeQwenImage21`）加提示词比例解析：
+**纯文生图**（不接参考图）时，如果提示词里写了明确的长宽比（如 `9:16`、`2:3`、`16:9`），
+空 latent 按该比例生成，`resolution` 只当**长边**用（如 512 + 9:16 → 288×512）；
+没写比例时维持原行为（resolution 正方形）。**接了参考图的工作流完全不受影响**（仍跟随参考图比例）。
+
+**解析规则**：
+
+- 正则 `(?<![\d.])(\d{1,2})[:：](\d{1,2})(?![\d.])`，取第一个能通过校验的匹配；
+- 两个数都 ≤ 32，且比例不比 8:1 更极端（`10:30` 这类时间虽能过校验会误判成 1:3，
+  控制台会打 `Prompt aspect ratio ...` 日志，提示词里写时刻请避开冒号）；
+- 短边取 `round(长边×比例/16)*16`（9:16 在 512/1024 下是精确的 288/576；720 下 405→400）。
+
+**适用版本**：ComfyUI 本体 commit `6ea2651`（同 `_upstream_commit.txt`，2026-01-12）。
+
+**恢复方式**（`comfy_extras/` 不进 git，换机后需要重打）：
+
+```bash
+cd comfy_extras
+patch -p1 < ../patches/comfyui-nodes_qwen-prompt-ratio.patch
+```
+
+**验证是否生效**：启动 ComfyUI 后跑一次纯文生图，提示词带 `9:16`、分辨率 512，
+出图应为 288×512；控制台应有一行 `Prompt aspect ratio 9:16 -> 288x512`。
+
 ## comfyui-gguf-add-qwen-image-arch.patch
 
 **作用**：给 `city96/ComfyUI-GGUF` 的 `tools/convert.py` 增加一个 `ModelQwenImage` 架构类，并把 `qwen_image` 加进 `arch_list`。

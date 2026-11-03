@@ -82,7 +82,11 @@ python scripts/gen_style_from_images.py --write    # 写入 styles/
 
 ### 文生图
 `UnetLoaderGGUF → Turbo LoRA → QwenImage21Cache → TextEncodeQwenImage21 → KSampler → SaveImage`，
-分辨率走 512 / 720 / 1024 下拉档。8 步 / cfg 1.0，720 档实测 **22 秒/张**，光影比多步采样更自然。
+分辨率走 512 / 720 / 1024 下拉档（= **长边**限制）。8 步 / cfg 1.0，720 档实测 **22 秒/张**，光影比多步采样更自然。
+
+**纯文生图时提示词里写了明确比例（如 `9:16`、`2:3`）就以提示词为准**：
+512 档 + 9:16 → 288×512，没写比例则是正方形（本体改动，见 `patches/comfyui-nodes_qwen-prompt-ratio.patch`；
+⚠️ 提示词里写「10:30」这类时刻会被当成 1:3 比例，写时间避开冒号）。
 
 「参考图（可选）」节点**线上接着就是图生图**（出图比例跟随参考图，约 80 秒），
 选中按 `M` 静音就回到纯文生图，不用改连线。接参考图时必须保留
