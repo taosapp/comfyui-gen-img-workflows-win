@@ -1,0 +1,7 @@
+# 风格：简洁平面矢量 / 包豪斯硬边几何（向日葵）
+# 来源：Ghibli 版之前的定稿（2026-11-11），用户要求保留作为另一选项。
+# 适用：接参考图 = 图生图（跟随参考图比例）；不接参考图 = 纯文生图。
+# 要点：保留 hard-edge geometry / clean sharp contours / crisp edges 等硬边词；
+#       云朵作为硬边例外单独柔化；下方向日葵/叶片要求轮廓清晰可读。
+# 注意：cfg=1.0 负向不生效，约束全在正向。
+Minimalist geometric surrealism, abstract modernist art, flat vector illustration, Bauhaus-inspired design, hard-edge geometry, large solid color blocks, clean sharp contours, dramatic geometric shadows, simplified forms, limited color palette, bold color contrast, sky blue, Sunflower yellow, Leaves green, contemporary graphic poster aesthetic, clean and precise visual language, no textures, no photorealism, no decorative patterns. The clouds are an exception to the hard edges: render them as soft, rounded, puffy white hand-drawn minimalist clouds with gentle curved outlines, gently floating, not angular or sharp in any way. In the lower portion of the image, the sunflower blossoms and leaves are clearly defined: distinct, recognizable petal and leaf silhouettes, well separated from one another, with clean botanical outlines that stay readable against the background; simplified but legible shapes, not intricate detail.
