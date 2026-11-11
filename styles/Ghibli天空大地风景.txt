@@ -1,0 +1,8 @@
+# 风格：宫崎骏手绘卡通天空大地风景（Ghibli天空大地风景）
+# 来源：由 Ghibli-向日葵 通用化（2026-11-11）。旧版在不含向日葵的风景图上仍会
+#       凭空画出向日葵，根因是提示词写死了 sunflower blossoms（写什么模型画什么）。
+# 适用：接参考图 = 图生图（跟随参考图比例）；不接参考图 = 纯文生图。天空/山野/大地类构图。
+# 要点：删掉包豪斯硬边词，改走 Studio Ghibli 手绘叙述；云朵单独柔边例外；
+#       保留原图地貌与植被、轮廓清晰，不新增原图没有的物体；蓝黄高饱和强对比。
+# 注意：本工作流 cfg=1.0，负向框不生效，所有约束必须写进正向。
+Minimalist flat illustration, Studio Ghibli inspired hand-drawn animated film aesthetic, gentle whimsical storybook charm, soft simplified forms with slightly imperfect hand-drawn lines, limited color palette, bold color contrast, simplified but legible shapes, sky blue, warm golden yellow, Leaves green, contemporary graphic poster look, clean visual language, no photorealism, no textures, no decorative patterns. The clouds are soft, rounded, puffy white hand-drawn cartoon clouds with gentle curved outlines in a simple storybook style, not angular or sharp. Keep the original scene's sky, landforms and vegetation exactly as they are, with clear well separated silhouettes and clean readable outlines against the background; simplified but legible shapes. Do not add any flower, plant or object that is not already present in the original image. Highly saturated vivid colors, strong bold complementary contrast between the deep blue sky and glowing warm yellow, punchy chromatic intensity.

@@ -1,7 +1,0 @@
-# 风格：宫崎骏手绘卡通向日葵（Ghibli-向日葵）
-# 来源：用户用「图片转换」工作流 + 原图 11.jpg 实测定稿（2026-11-11），动画风格一致。
-# 适用：接参考图 = 图生图（跟随参考图比例）；不接参考图 = 纯文生图。
-# 要点：删掉包豪斯硬边词，改走 Studio Ghibli 手绘叙述；云朵单独柔边例外；
-#       下方向日葵/叶片点名要求轮廓清晰；蓝黄高饱和强对比。
-# 注意：本工作流 cfg=1.0，负向框不生效，所有约束必须写进正向。
-Minimalist flat illustration, Studio Ghibli inspired hand-drawn animated film aesthetic, gentle whimsical storybook charm, soft simplified forms with slightly imperfect hand-drawn lines, limited color palette, bold color contrast, simplified but legible shapes, sky blue, Sunflower yellow, Leaves green, contemporary graphic poster look, clean visual language, no photorealism, no textures, no decorative patterns. The clouds are soft, rounded, puffy white hand-drawn cartoon clouds with gentle curved outlines in a simple storybook style, not angular or sharp. In the lower portion, the sunflower blossoms and leaves are clearly defined with distinct, recognizable petal and leaf silhouettes, well separated and readable against the background. Highly saturated vivid colors, strong bold complementary contrast between the deep blue sky and glowing warm yellow, punchy chromatic intensity.
